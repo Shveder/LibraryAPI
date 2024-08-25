@@ -1,11 +1,9 @@
-﻿namespace Library.Core.Models;
+﻿using Library.Core.Models.Base;
 
-public class Author
+namespace Library.Core.Models;
+
+public class Author : BaseModel
 {
-    /// <summary>
-    /// ID of author
-    /// </summary>
-    public Guid Id { get; set; }
     /// <summary>
     /// Name of author
     /// </summary>

@@ -1,11 +1,9 @@
-﻿namespace Library.Core.Models;
+﻿using Library.Core.Models.Base;
 
-public class Book
+namespace Library.Core.Models;
+
+public class Book : BaseModel
 {
-    /// <summary>
-    /// ID of book
-    /// </summary>
-    public Guid Id { get; set; }
     /// <summary>
     /// ISBN of book
     /// </summary>
