@@ -16,10 +16,6 @@ public class ExceptionHandlingMiddleware(
         {
             await next(httpContext);
         }
-        catch (UnauthorizedAccessException ex)
-        {
-            await HandleExceptionAsync(ex, httpContext, HttpStatusCode.Unauthorized);
-        }
         catch (IncorrectDataException ex)
         {
             await HandleExceptionAsync(ex, httpContext, HttpStatusCode.BadRequest);
