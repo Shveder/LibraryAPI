@@ -1,24 +1,24 @@
 ﻿namespace Library.Core.DTO;
 
-public class ResponseDto<T>(string message, bool isSuccess = true, string details = "Операция выполнена успешно", T? data = default)
+public class ResponseDto<T>(string message, bool isSuccess = true, string details = "Operation succeed", T? data = default)
 {
     /// <summary>
-    /// Сообщение ответа.
+    /// Answer message.
     /// </summary>
     public string Message { get; set; } = message;
 
     /// <summary>
-    /// Указывает, успешен ли запрос.
+    /// Is the request successful.
     /// </summary>
     public bool IsSuccess { get; set; } = isSuccess;
 
     /// <summary>
-    /// Данные ответа.
+    /// Answer data.
     /// </summary>
     public T? Data { get; set; } = data;
 
     /// <summary>
-    /// Дополнительная информация.
+    /// Additional information.
     /// </summary>
     public string? Details { get; set; } = details;
 }
