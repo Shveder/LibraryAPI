@@ -20,6 +20,10 @@ public class ExceptionHandlingMiddleware(
         {
             await HandleExceptionAsync(ex, httpContext, HttpStatusCode.BadRequest);
         }
+        catch (EntityNotFoundException ex)
+        {
+            await HandleExceptionAsync(ex, httpContext, HttpStatusCode.BadRequest);
+        }
         catch (Exception ex)
         {
             await HandleExceptionAsync(ex, httpContext, HttpStatusCode.InternalServerError);
