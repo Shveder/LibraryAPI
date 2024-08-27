@@ -54,9 +54,10 @@ public class BaseService<TDto, TEntity>(DbContext dbContext, IMapper mapper) : I
         await DbContext.SaveChangesAsync();
         return dto;
     }
-    public virtual async Task<TDto> PutAsync(Guid id, TDto dto)
+    public virtual async Task<TDto> PutAsync(TDto dto)
     {
         var entity = Mapper.Map<TEntity>(dto);
+        entity.DateUpdated = DateTime.UtcNow;
         try
         {
             Context.Update(entity);
@@ -64,7 +65,7 @@ public class BaseService<TDto, TEntity>(DbContext dbContext, IMapper mapper) : I
         }
         catch (DbUpdateConcurrencyException ex)
         {
-            if (!EntityExists(id))
+            if (!EntityExists(dto.Id))
                 throw new EntityNotFoundException($"{CommonStrings.NotFoundResult}, {ex.Message}");
         }
         

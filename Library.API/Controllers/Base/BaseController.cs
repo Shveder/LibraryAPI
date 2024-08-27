@@ -27,7 +27,7 @@ public class BaseController<TService, TEntity, TEntityDto>(TService service) : C
     /// </summary>
     /// <param name="id"></param>
     /// <returns></returns>
-    [HttpDelete("{id:int}")]
+    [HttpDelete("{id:guid}")]
     public async Task<IActionResult> DeleteAsync(Guid id)
     {
         await _service.DeleteByIdAsync(id);
@@ -40,7 +40,7 @@ public class BaseController<TService, TEntity, TEntityDto>(TService service) : C
     /// </summary>
     /// <param name="id"></param>
     /// <returns></returns>
-    [HttpGet("{id:int}")]
+    [HttpGet("{id:guid}")]
     public virtual async Task<IActionResult> GetByIdAsync(Guid id)
     {
         var entity = await _service.GetByIdAsync(id);
@@ -51,13 +51,12 @@ public class BaseController<TService, TEntity, TEntityDto>(TService service) : C
     /// <summary>
     /// 
     /// </summary>
-    /// <param name="id"></param>
     /// <param name="dto"></param>
     /// <returns></returns>
-    [HttpPut("{id}")]
-    public virtual async Task<IActionResult> PutAsync(Guid id, TEntityDto dto)
+    [HttpPut("{id:guid}")]
+    public virtual async Task<IActionResult> PutAsync(TEntityDto dto)
     {
-        var entity = await _service.PutAsync(id, dto);
+        var entity = await _service.PutAsync(dto);
         
         return Ok(new ResponseDto<TEntityDto>(CommonStrings.SuccessResultPut, data: entity));
     }
