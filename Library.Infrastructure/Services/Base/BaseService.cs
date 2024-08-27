@@ -31,6 +31,13 @@ public class BaseService<TDto, TEntity>(DbContext dbContext, IMapper mapper) : I
         return dto;
     }
     
+    public virtual async Task<IEnumerable<TDto>> GetAllAsync()
+    {
+        var entities = await Context.ToListAsync();
+        var dtos = Mapper.Map<IEnumerable<TDto>>(entities);
+        return dtos;
+    }
+    
     public virtual async Task DeleteByIdAsync(Guid id)
     {
         var entity = await Context.FindAsync(id);

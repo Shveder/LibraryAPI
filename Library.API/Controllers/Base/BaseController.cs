@@ -48,19 +48,19 @@ public class BaseController<TService, TEntity, TEntityDto>(TService service) : C
         return Ok(new ResponseDto<TEntityDto>(CommonStrings.SuccessResult, data: entity));
     }
 
-    /*/// <summary>
+    /// <summary>
     /// 
     /// </summary>
     /// <param name="id"></param>
     /// <param name="dto"></param>
     /// <returns></returns>
     [HttpPut("{id}")]
-    public virtual async Task<IActionResult> PutAsync(int id, TEntityDto dto)
+    public virtual async Task<IActionResult> PutAsync(Guid id, TEntityDto dto)
     {
         var entity = await _service.PutAsync(id, dto);
         
         return Ok(new ResponseDto<TEntityDto>(CommonStrings.SuccessResultPut, data: entity));
-    }*/
+    }
 
     /// <summary>
     /// 
@@ -75,17 +75,14 @@ public class BaseController<TService, TEntity, TEntityDto>(TService service) : C
         return Ok(new ResponseDto<TEntityDto>(CommonStrings.SuccessResultPost, data: entity));
     }
 
-    /*/// <summary>
-    /// 
+    /// <summary>
+    /// Get all entities.
     /// </summary>
-    /// <param name="dtos"></param>
-    /// <returns></returns>
-    [HttpPost("add-range")]
-    public virtual async Task<IActionResult> PostRangeAsync(List<TEntityDto> dtos)
+    /// <returns>List of entities.</returns>
+    [HttpGet("GetAll")]
+    public virtual async Task<IActionResult> GetAllAsync()
     {
-        var entities = await _service.PostRangeAsync(dtos);
-
-        return Ok(new ResponseDto<List<TEntityDto>>(CommonStrings.SuccessResultPost, data: entities));
-    }*/
-    
+        var entity = await _service.GetAllAsync();
+        return Ok(new ResponseDto<IEnumerable<TEntityDto>>(CommonStrings.SuccessResult, data: entity));
+    }
 }
