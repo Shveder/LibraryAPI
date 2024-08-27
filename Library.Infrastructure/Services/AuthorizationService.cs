@@ -4,13 +4,13 @@ using Library.Core.DTO;
 using Library.Core.Models;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
-using Library.Infrastructure.DatabaseContext;
 using Library.Infrastructure.Exceptions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using System.Security.Cryptography;
+using Library.Infrastructure.DatabaseContext;
 
 namespace Library.Infrastructure.Services;
 
@@ -23,7 +23,7 @@ public class AuthorizationService(DataContext context, IConfiguration configurat
         var user = await context.Set<User>().FirstOrDefaultAsync(model => model.Login == login);
         
         if (user == null)
-            throw new IncorrectDataException("Неверный логин или пароль");
+            throw new IncorrectDataException("Invalid login or password");
         
         password = Hash(password);
         password = Hash(password + user.Salt);
@@ -33,7 +33,7 @@ public class AuthorizationService(DataContext context, IConfiguration configurat
                 model.Login == login && model.Password == password);
         
         if (user1 == null)
-            throw new IncorrectDataException("Неверный логин или пароль");
+            throw new IncorrectDataException("Invalid login or password");
 
         return user1;
     }
@@ -58,6 +58,7 @@ public class AuthorizationService(DataContext context, IConfiguration configurat
             Login = request.Login,
             Password = request.Password,
             Salt = salt,
+            Role = "user"
         };
         await context.Set<User>().AddAsync(user);
         await context.SaveChangesAsync();
@@ -93,8 +94,16 @@ public class AuthorizationService(DataContext context, IConfiguration configurat
     }
     public async Task<string> GenerateTokenAsync(string login, string password)
     {
+        var user1 = await context.Set<User>().FirstOrDefaultAsync(model => model.Login == login);
+        
+        if (user1 == null)
+            throw new IncorrectDataException("Invalid login or password");
+        
+        password = Hash(password);
+        password = Hash(password + user1.Salt);
+        
         // Поиск пользователя по логину и паролю
-        var user = await context.Users
+        var user = await context.Set<User>()
             .FirstOrDefaultAsync(u => u.Login == login && u.Password == password);
 
         if (user == null)
@@ -102,7 +111,6 @@ public class AuthorizationService(DataContext context, IConfiguration configurat
             throw new EntityNotFoundException("User not found or invalid credentials");
         }
 
-        // Создание списка клеймов
         var claims = new List<Claim>
         {
             new Claim(JwtRegisteredClaimNames.Sub, configuration["Jwt:Subject"]),
@@ -110,15 +118,14 @@ public class AuthorizationService(DataContext context, IConfiguration configurat
             new Claim(JwtRegisteredClaimNames.Iat, DateTime.UtcNow.ToString()),
             new Claim("id", user.Id.ToString()),
             new Claim("name", user.Login),
-            new Claim("role", user.Role) // Добавляем роль пользователя в клеймы
+            new Claim("role", user.Role) 
         };
 
-        // Подготовка ключа и подписывающей информации
+      
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["Jwt:Key"]));
         var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
         var expiry = DateTime.UtcNow.AddMinutes(10);
 
-        // Создание JWT токена
         var token = new JwtSecurityToken(
             issuer: configuration["Jwt:Issuer"],
             audience: configuration["Jwt:Audience"],
@@ -127,7 +134,6 @@ public class AuthorizationService(DataContext context, IConfiguration configurat
             signingCredentials: creds
         );
 
-        // Возвращаем сгенерированный токен
         return new JwtSecurityTokenHandler().WriteToken(token);
     }
 
