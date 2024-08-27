@@ -8,23 +8,89 @@ using Library.Infrastructure.DatabaseContext;
 using Library.Infrastructure.Exceptions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
+using System.Security.Cryptography;
 
 namespace Library.Infrastructure.Services;
 
 [AutoInterface]
-public class AuthorizationService(DataContext context, IConfiguration configuration) : IAuthorizationService
+public class AuthorizationService(DataContext context, IConfiguration configuration,
+    ILogger<AuthorizationService>logger) : IAuthorizationService
 {
-    public async Task<User> Login(string username, string password)
+    public async Task<User> Login(string login, string password)
     {
-        throw new NotImplementedException();
+        var user = await context.Set<User>().FirstOrDefaultAsync(model => model.Login == login);
+        
+        if (user == null)
+            throw new IncorrectDataException("Неверный логин или пароль");
+        
+        password = Hash(password);
+        password = Hash(password + user.Salt);
+
+        var user1 = await
+            context.Set<User>().FirstOrDefaultAsync(model =>
+                model.Login == login && model.Password == password);
+        
+        if (user1 == null)
+            throw new IncorrectDataException("Неверный логин или пароль");
+
+        return user1;
     }
     
-    public async Task Register(RegisterUserRequest registerUserRequest)
+    public async Task Register(RegisterUserRequest request)
     {
-        throw new NotImplementedException();
+        if (request.Password != request.PasswordRepeat)
+            throw new IncorrectDataException("Passwords do not match");
+        if(await IsLoginUnique(request.Login))
+            throw new IncorrectDataException("There is already a user with this login in the system");
+        if(request.Login.Length is < 4 or > 32)
+            throw new IncorrectDataException("Login length must be between 4 and 32 characters.");
+        if(request.Password.Length is < 4 or > 32)
+            throw new IncorrectDataException("Password length must be between 4 and 32 characters.");
+        
+        request.Password = Hash(request.Password);
+        string salt = GetSalt();
+        request.Password = Hash(request.Password + salt);
+        
+        var user = new User
+        {
+            Login = request.Login,
+            Password = request.Password,
+            Salt = salt,
+        };
+        await context.Set<User>().AddAsync(user);
+        await context.SaveChangesAsync();
+        logger.LogInformation($"User created (Login: {request.Login})");
     }
-    
+    private async Task<bool> IsLoginUnique(string login)
+    {
+        var user = await context.Set<User>().FirstOrDefaultAsync(model => model.Login == login); 
+        return user != null;
+    }
+    private string GetSalt()
+    {
+        byte[] salt = new byte[16];
+        using (var rng = new RNGCryptoServiceProvider())
+        {
+            rng.GetBytes(salt);
+        }
+        return Convert.ToBase64String(salt);
+    }
+
+    private string Hash(string inputString)
+    {
+        using (var sha256 = SHA256.Create())
+        {
+            byte[] bytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(inputString));
+            StringBuilder sb = new StringBuilder();
+            foreach (byte b in bytes)
+            {
+                sb.Append(b.ToString("x2"));
+            }
+            return sb.ToString();
+        }
+    }
     public async Task<string> GenerateTokenAsync(string login, string password)
     {
         // Поиск пользователя по логину и паролю

@@ -31,7 +31,7 @@ public class AuthorizationController(IAuthorizationService authorizationService)
     public async Task<IActionResult> Login([FromBody] RegisterUserRequest request)
     {
         await authorizationService.Register(request);
-        return Ok();
+        return Ok("Registration successful");
     }
     
 }
