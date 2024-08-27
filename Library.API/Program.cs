@@ -9,9 +9,18 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.IdentityModel.Tokens;
-using Microsoft.OpenApi.Models;
+using Serilog;
+using Serilog.Events;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// Configure Serilog
+Log.Logger = new LoggerConfiguration()
+    .MinimumLevel.Debug()
+    .MinimumLevel.Override("Microsoft", LogEventLevel.Information)
+    .WriteTo.Console()
+    .WriteTo.File("logs/log.txt", rollingInterval: RollingInterval.Day)
+    .CreateLogger();
 
 // Add services to the container.
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -57,13 +66,6 @@ builder.Services.AddAutoMapper(typeof(AuthorProfile));
 // Swagger Configuration
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-
-// Routing Configuration
-builder.Services.AddRouting(opt =>
-{
-    opt.LowercaseUrls = true;
-    opt.LowercaseQueryStrings = true;
-});
 
 builder.Services.AddScoped<IAuthorizationService, AuthorizationService>();
 
@@ -123,11 +125,18 @@ app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
 
 #region Initialize Database
 
-// Ensure Database Created and Apply Migrations
 using (var scope = app.Services.CreateScope())
 {
-    var dbContext = scope.ServiceProvider.GetRequiredService<DataContext>();
-    dbContext.Database.EnsureCreated();
+    var services = scope.ServiceProvider;
+    try
+    {
+        var context = services.GetRequiredService<DataContext>();
+        context.Database.Migrate();
+    }
+    catch (Exception ex)
+    {
+        Log.Fatal(ex, "An error occurred creating the DB.");
+    }
 }
 
 #endregion
