@@ -53,7 +53,7 @@ public class BaseController<TService, TEntity, TEntityDto>(TService service) : C
     /// </summary>
     /// <param name="dto"></param>
     /// <returns></returns>
-    [HttpPut("{id:guid}")]
+    [HttpPut]
     public virtual async Task<IActionResult> PutAsync(TEntityDto dto)
     {
         var entity = await _service.PutAsync(dto);
