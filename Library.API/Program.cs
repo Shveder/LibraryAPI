@@ -1,11 +1,14 @@
-using System.Reflection;
+using System.Text;
 using System.Text.Json;
 using Library.Infrastructure;
 using Library.Infrastructure.DatabaseContext;
 using Library.Infrastructure.Mappings;
 using Library.Infrastructure.Middlewares;
+using Library.Infrastructure.Services;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.FileProviders;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -14,6 +17,26 @@ var builder = WebApplication.CreateBuilder(args);
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+}).AddJwtBearer(options =>
+{
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuer = true,
+        ValidateAudience = true,
+        ValidateLifetime = true,
+        ValidateIssuerSigningKey = true,
+        ValidIssuer = builder.Configuration["Jwt:Issuer"],
+        ValidAudience = builder.Configuration["Jwt:Audience"],
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]))
+    };
+});
+
+builder.Services.AddAuthorization();
 
 #region Configure Services
 
@@ -41,6 +64,8 @@ builder.Services.AddRouting(opt =>
     opt.LowercaseUrls = true;
     opt.LowercaseQueryStrings = true;
 });
+
+builder.Services.AddScoped<IAuthorizationService, AuthorizationService>();
 
 // Custom Services Configuration
 ServiceConfig.RegisterService(builder.Services);
