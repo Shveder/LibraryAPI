@@ -62,6 +62,7 @@ builder.Services.AddControllers().AddJsonOptions(options =>
 
 builder.Services.AddAutoMapper(typeof(BookProfile));
 builder.Services.AddAutoMapper(typeof(AuthorProfile));
+builder.Services.AddAutoMapper(typeof(UserBookProfile));
 
 // Swagger Configuration
 builder.Services.AddEndpointsApiExplorer();
