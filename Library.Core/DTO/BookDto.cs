@@ -28,5 +28,5 @@ public class BookDto : BaseDto
     /// <summary>
     /// Author of book
     /// </summary>
-    public Author Author { get; set; }
+    public Guid AuthorId { get; set; }
 }
