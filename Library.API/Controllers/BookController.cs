@@ -10,7 +10,7 @@ namespace Library.API.Controllers;
 /// 
 /// </summary>
 /// <param name="bookService"></param>
-[Route("api/book")]
+[Route("api/Book")]
 [ApiController]
 public class BookController (IBookService bookService)
     : BaseController<IBookService, Book, BookDto>(bookService);

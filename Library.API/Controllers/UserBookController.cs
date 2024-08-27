@@ -9,7 +9,6 @@ namespace Library.API.Controllers;
 /// <summary>
 /// 
 /// </summary>
-/// <param name="userBookService"></param>
 [Route("api/UserBook")]
 [ApiController]
 public class UserBookController(IUserBookService bookService)

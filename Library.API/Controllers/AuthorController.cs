@@ -10,7 +10,7 @@ namespace Library.API.Controllers;
 /// 
 /// </summary>
 /// <param name="authorService"></param>
-[Route("api/author")]
+[Route("api/Author")]
 [ApiController]
 public class AuthorController(IAuthorService authorService)
     : BaseController<IAuthorService, Author, AuthorDto>(authorService);
