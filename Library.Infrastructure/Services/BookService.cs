@@ -17,7 +17,6 @@ public class BookService(DataContext dbContext, IMapper mapper)
 
     public override async Task<BookDto> PostAsync(BookDto dto)
     {
-        
         var author = await DbContext.Set<Author>().FindAsync(dto.AuthorId);
         if (author == null)
         {
@@ -50,6 +49,18 @@ public class BookService(DataContext dbContext, IMapper mapper)
         var entity = await DbContext.Set<Book>()
             .Include(model => model.Author)
             .FirstOrDefaultAsync(e => e.Id == id);
+        if (entity is null)
+            throw new EntityNotFoundException(CommonStrings.NotFoundResult);
+        
+        var dto = Mapper.Map<BookDto>(entity);
+       
+        return dto;
+    }
+    public async Task<BookDto> GetByIsbnAsync(string isbn)
+    {
+        var entity = await DbContext.Set<Book>()
+            .Include(model => model.Author)
+            .FirstOrDefaultAsync(e => e.ISBN == isbn);
         if (entity is null)
             throw new EntityNotFoundException(CommonStrings.NotFoundResult);
         
