@@ -1,7 +1,9 @@
-﻿using Library.Core.Models.Base;
+﻿using AutoInterfaceAttributes;
+using Library.Core.Models.Base;
 
 namespace Library.Core.Models;
 
+[AutoInterface]
 public class Author : BaseModel
 {
     /// <summary>

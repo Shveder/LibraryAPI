@@ -21,10 +21,6 @@ public class Book : BaseModel
     /// </summary>
     public string Description { get; set; }
     /// <summary>
-    /// Date when book was taken
-    /// </summary>
-    public DateTime DateTaken { get; set; }
-    /// <summary>
     /// Author of book
     /// </summary>
     public Author Author { get; set; }
