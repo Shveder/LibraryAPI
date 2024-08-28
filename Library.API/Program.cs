@@ -4,6 +4,7 @@ using Library.Infrastructure;
 using Library.Infrastructure.DatabaseContext;
 using Library.Infrastructure.Mappings;
 using Library.Infrastructure.Middlewares;
+using Library.Infrastructure.Repository;
 using Library.Infrastructure.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
@@ -70,6 +71,7 @@ builder.Services.AddSwaggerGen();
 
 builder.Services.AddScoped<IAuthorizationService, AuthorizationService>();
 builder.Services.AddScoped<IPhotoService, PhotoService>();
+builder.Services.AddScoped<IDbRepository, DbRepository>();
 
 // Custom Services Configuration
 ServiceConfig.RegisterService(builder.Services);

@@ -5,19 +5,21 @@ using Library.Core.DTO;
 using Library.Core.Models;
 using Library.Infrastructure.DatabaseContext;
 using Library.Infrastructure.Exceptions;
+using Library.Infrastructure.Repository;
 using Library.Infrastructure.Services.Base;
 using Microsoft.EntityFrameworkCore;
 
 namespace Library.Infrastructure.Services;
 
 [AutoInterface(Inheritance = [typeof(IBaseService<BookDto, Book>)])]
-public class BookService(DataContext dbContext, IMapper mapper)
-    : BaseService<BookDto, Book>(dbContext, mapper), IBookService
+public class BookService(DataContext dbContext, IMapper mapper, IDbRepository repository)
+    : BaseService<BookDto, Book>(repository, mapper), IBookService
 {
+    private readonly IDbRepository _repository = repository;
 
     public override async Task<BookDto> PostAsync(BookDto dto)
     {
-        var author = await DbContext.Set<Author>().FindAsync(dto.AuthorId);
+        var author = await repository.Get<Author>(a => a.Id == dto.AuthorId).FirstOrDefaultAsync();
         if (author == null)
         {
             throw new IncorrectDataException("Author not found");
@@ -32,23 +34,24 @@ public class BookService(DataContext dbContext, IMapper mapper)
             Genre = dto.Genre
         };
         
-        await Context.AddAsync(book);
-        await DbContext.SaveChangesAsync();
+        await repository.Add(book);
+        await repository.SaveChangesAsync();
         return dto;
     }
     
     public override async Task<IEnumerable<BookDto>> GetAllAsync()
     {
-        var entities = await Context.Include(model => model.Author).ToListAsync();
+        var entities = _repository.GetAll<Book>().Include(b => b.Author);
+        
         var dtos = Mapper.Map<IEnumerable<BookDto>>(entities);
         return dtos;
     }
     
     public override async Task<BookDto> GetByIdAsync(Guid id)
     {
-        var entity = await DbContext.Set<Book>()
-            .Include(model => model.Author)
-            .FirstOrDefaultAsync(e => e.Id == id);
+        
+        var entity = await _repository.Get<Book>(e => e.Id == id)
+            .Include(model => model.Author).FirstOrDefaultAsync();
         if (entity is null)
             throw new EntityNotFoundException(CommonStrings.NotFoundResult);
         
@@ -58,9 +61,8 @@ public class BookService(DataContext dbContext, IMapper mapper)
     }
     public async Task<BookDto> GetByIsbnAsync(string isbn)
     {
-        var entity = await DbContext.Set<Book>()
-            .Include(model => model.Author)
-            .FirstOrDefaultAsync(e => e.ISBN == isbn);
+        var entity = await _repository.Get<Book>(e => e.ISBN == isbn)
+            .Include(model => model.Author).FirstOrDefaultAsync();
         if (entity is null)
             throw new EntityNotFoundException(CommonStrings.NotFoundResult);
         
@@ -70,13 +72,12 @@ public class BookService(DataContext dbContext, IMapper mapper)
     }
     public async Task<BookDto> GetByAuthor(Guid authorId)
     {
-        var author = await DbContext.Set<Author>().FindAsync(authorId);
+        var author = await _repository.Get<Author>(a => a.Id == authorId).FirstOrDefaultAsync();
         if (author == null)
             throw new IncorrectDataException("Author not found");
         
-        var entity = await DbContext.Set<Book>()
-            .Include(model => model.Author)
-            .FirstOrDefaultAsync(e => e.Author == author);
+        var entity = await _repository.Get<Book>(e => e.Author == author).
+                Include(model => model.Author).FirstOrDefaultAsync();
         if (entity is null)
             throw new EntityNotFoundException(CommonStrings.NotFoundResult);
         

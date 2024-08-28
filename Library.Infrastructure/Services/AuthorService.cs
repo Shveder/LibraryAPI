@@ -2,6 +2,7 @@
 using Library.Core.Models;
 using Library.Infrastructure.DatabaseContext;
 using Library.Infrastructure.Exceptions;
+using Library.Infrastructure.Repository;
 using Library.Infrastructure.Services.Base;
 using Microsoft.EntityFrameworkCore;
 
@@ -12,9 +13,11 @@ using AutoMapper;
 
 
 [AutoInterface(Inheritance = [typeof(IBaseService<AuthorDto, Author>)])]
-public class AuthorService(DataContext dbContext, IMapper mapper)
-    : BaseService<AuthorDto, Author>(dbContext, mapper), IAuthorService
+public class AuthorService(DataContext dbContext, IMapper mapper, IDbRepository repository)
+    : BaseService<AuthorDto, Author>(repository, mapper), IAuthorService
 {
+    private readonly IDbRepository _repository = repository;
+
     public override async Task<AuthorDto> PostAsync(AuthorDto dto)
     {
         if (await IsAuthorUnique(dto.Name))
@@ -28,13 +31,13 @@ public class AuthorService(DataContext dbContext, IMapper mapper)
             Country = dto.Country
         };
         
-        await Context.AddAsync(author);
-        await DbContext.SaveChangesAsync();
+        await _repository.Add(author);
+        await _repository.SaveChangesAsync();
         return dto;
     }
     private async Task<bool> IsAuthorUnique(string name)
     {
-        var author = await DbContext.Set<Author>().FirstOrDefaultAsync(model => model.Name == name); 
+        var author = await _repository.Get<Author>(model => model.Name == name).FirstOrDefaultAsync();
         return author != null;
     }
 }

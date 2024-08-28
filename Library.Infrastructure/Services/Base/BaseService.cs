@@ -4,77 +4,74 @@ using Library.Common;
 using Library.Core.DTO.Base;
 using Library.Core.Models.Base;
 using Library.Infrastructure.Exceptions;
+using Library.Infrastructure.Repository;
 using Microsoft.EntityFrameworkCore;
 
 namespace Library.Infrastructure.Services.Base;
 
 [AutoInterface]
-public class BaseService<TDto, TEntity>(DbContext dbContext, IMapper mapper) : IBaseService<TDto, TEntity>
+public class BaseService<TDto, TEntity>(IDbRepository dbRepository, IMapper mapper) : IBaseService<TDto, TEntity>
     where TDto : BaseDto
     where TEntity : BaseModel
 {
-    
-    protected readonly DbContext DbContext = dbContext;
-    
     protected readonly IMapper Mapper = mapper;
-    
-    protected DbSet<TEntity> Context => DbContext.Set<TEntity>();
-    
+
     public virtual async Task<TDto> GetByIdAsync(Guid id)
     {
-        var entity = await Context.FindAsync(id);
+        var entity = await dbRepository.Get<TEntity>(e => e.Id == id).FirstOrDefaultAsync();
         if (entity is null)
             throw new EntityNotFoundException(CommonStrings.NotFoundResult);
-        
+
         var dto = Mapper.Map<TDto>(entity);
-       
         return dto;
     }
-    
+
     public virtual async Task<IEnumerable<TDto>> GetAllAsync()
     {
-        var entities = await Context.ToListAsync();
+        var entities = await dbRepository.GetAll<TEntity>().ToListAsync();
         var dtos = Mapper.Map<IEnumerable<TDto>>(entities);
         return dtos;
     }
-    
+
     public virtual async Task DeleteByIdAsync(Guid id)
     {
-        var entity = await Context.FindAsync(id);
+        var entity = await dbRepository.Get<TEntity>(e => e.Id == id).FirstOrDefaultAsync();
         if (entity is null)
             throw new EntityNotFoundException($"{typeof(TEntity).Name} {CommonStrings.NotFoundResult}");
 
-        Context.Remove(entity);
-        await DbContext.SaveChangesAsync();
+        await dbRepository.Delete<TEntity>(id);
+        await dbRepository.SaveChangesAsync();
     }
-    
+
     public virtual async Task<TDto> PostAsync(TDto dto)
     {
-        await Context.AddAsync(Mapper.Map<TEntity>(dto));
-        await DbContext.SaveChangesAsync();
+        var entity = Mapper.Map<TEntity>(dto);
+        await dbRepository.Add(entity);
+        await dbRepository.SaveChangesAsync();
         return dto;
     }
+
     public virtual async Task<TDto> PutAsync(TDto dto)
     {
         var entity = Mapper.Map<TEntity>(dto);
         entity.DateUpdated = DateTime.UtcNow;
+
         try
         {
-            Context.Update(entity);
-            await DbContext.SaveChangesAsync();
+            await dbRepository.Update(entity);
+            await dbRepository.SaveChangesAsync();
         }
         catch (DbUpdateConcurrencyException ex)
         {
             if (!EntityExists(dto.Id))
                 throw new EntityNotFoundException($"{CommonStrings.NotFoundResult}, {ex.Message}");
         }
-        
-        Context.Entry(entity).State = EntityState.Detached;
-        
+
         return dto;
     }
+
     private bool EntityExists(Guid id)
     {
-        return DbContext.Set<TEntity>().Any(e => e.Id == id);
+        return dbRepository.Get<TEntity>(e => e.Id == id).Any();
     }
 }

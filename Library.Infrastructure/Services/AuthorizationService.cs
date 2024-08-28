@@ -11,16 +11,17 @@ using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using System.Security.Cryptography;
 using Library.Infrastructure.DatabaseContext;
+using Library.Infrastructure.Repository;
 
 namespace Library.Infrastructure.Services;
 
 [AutoInterface]
 public class AuthorizationService(DataContext context, IConfiguration configuration,
-    ILogger<AuthorizationService>logger) : IAuthorizationService
+    ILogger<AuthorizationService>logger, IDbRepository repository) : IAuthorizationService
 {
     public async Task<User> Login(string login, string password)
     {
-        var user = await context.Set<User>().FirstOrDefaultAsync(model => model.Login == login);
+        var user = await repository.Get<User>(model => model.Login == login).FirstOrDefaultAsync();
         
         if (user == null)
             throw new IncorrectDataException("Invalid login or password");
@@ -28,10 +29,9 @@ public class AuthorizationService(DataContext context, IConfiguration configurat
         password = Hash(password);
         password = Hash(password + user.Salt);
 
-        var user1 = await
-            context.Set<User>().FirstOrDefaultAsync(model =>
-                model.Login == login && model.Password == password);
-        
+        var user1 = await repository.Get<User>(model =>
+            model.Login == login && model.Password == password).FirstOrDefaultAsync();
+
         if (user1 == null)
             throw new IncorrectDataException("Invalid login or password");
 
@@ -60,13 +60,13 @@ public class AuthorizationService(DataContext context, IConfiguration configurat
             Salt = salt,
             Role = "user"
         };
-        await context.Set<User>().AddAsync(user);
-        await context.SaveChangesAsync();
+        await repository.Add(user);
+        await repository.SaveChangesAsync();
         logger.LogInformation($"User created (Login: {request.Login})");
     }
     private async Task<bool> IsLoginUnique(string login)
     {
-        var user = await context.Set<User>().FirstOrDefaultAsync(model => model.Login == login); 
+        var user = await repository.Get<User>(model => model.Login == login).FirstOrDefaultAsync(); 
         return user != null;
     }
     private string GetSalt()
@@ -102,9 +102,8 @@ public class AuthorizationService(DataContext context, IConfiguration configurat
         password = Hash(password);
         password = Hash(password + user1.Salt);
         
-        // Поиск пользователя по логину и паролю
-        var user = await context.Set<User>()
-            .FirstOrDefaultAsync(u => u.Login == login && u.Password == password);
+        var user = await repository.Get<User>(u =>
+                u.Login == login && u.Password == password).FirstOrDefaultAsync();
 
         if (user == null)
         {

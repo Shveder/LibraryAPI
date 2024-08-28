@@ -5,26 +5,29 @@ using Library.Core.DTO;
 using Library.Core.Models;
 using Library.Infrastructure.DatabaseContext;
 using Library.Infrastructure.Exceptions;
+using Library.Infrastructure.Repository;
 using Library.Infrastructure.Services.Base;
 using Microsoft.EntityFrameworkCore;
 
 namespace Library.Infrastructure.Services;
 
 [AutoInterface(Inheritance = [typeof(IBaseService<UserBookDto, UserBook>)])]
-public class UserBookService(DataContext dbContext, IMapper mapper)
-    : BaseService<UserBookDto, UserBook>(dbContext, mapper), IUserBookService
+public class UserBookService(DataContext dbContext, IMapper mapper, IDbRepository repository)
+    : BaseService<UserBookDto, UserBook>(repository, mapper), IUserBookService
 {
+    private readonly IDbRepository _repository = repository;
+
     public override async Task<UserBookDto> PostAsync(UserBookDto dto)
     {
-        var book = await DbContext.Set<Book>().FindAsync(dto.BookId);
+        var book = await _repository.Get<Book>(b => b.Id == dto.BookId).FirstOrDefaultAsync();
         if (book == null)
             throw new IncorrectDataException("Book not found");
         
-        var user = await DbContext.Set<User>().FindAsync(dto.UserId);
+        var user = await _repository.Get<User>(b => b.Id == dto.UserId).FirstOrDefaultAsync();
         if (user == null)
             throw new IncorrectDataException("User not found");
         
-        var oldUserBook = await DbContext.Set<UserBook>().FirstOrDefaultAsync(model => model.Book == book);
+        var oldUserBook = await _repository.Get<UserBook>(model => model.Book == book).FirstOrDefaultAsync();
         if (oldUserBook != null)
             throw new IncorrectDataException("Somebody already got this book");
 
@@ -36,24 +39,25 @@ public class UserBookService(DataContext dbContext, IMapper mapper)
             DateTaken = dto.DateTaken,
         };
         
-        await Context.AddAsync(userBook);
-        await DbContext.SaveChangesAsync();
+        await _repository.Add(userBook);
+        await _repository.SaveChangesAsync();
         return dto;
     }
     
     public override async Task<IEnumerable<UserBookDto>> GetAllAsync()
     {
-        var entities = await Context.Include(model => model.User)
+        var entities = await _repository.GetAll<UserBook>()
+            .Include(model => model.User)
             .Include(model => model.Book).ToListAsync();
         var dtos = Mapper.Map<IEnumerable<UserBookDto>>(entities);
         return dtos;
     }
     public override async Task<UserBookDto> GetByIdAsync(Guid id)
     {
-        var entity = await DbContext.Set<UserBook>()
+        var entity = await _repository.Get<UserBook>(e => e.Id == id)
             .Include(model => model.Book)
             .Include(model => model.User)
-            .FirstOrDefaultAsync(e => e.Id == id);
+            .FirstOrDefaultAsync();
         if (entity is null)
             throw new EntityNotFoundException(CommonStrings.NotFoundResult);
         
@@ -64,11 +68,11 @@ public class UserBookService(DataContext dbContext, IMapper mapper)
 
     public async Task<IEnumerable<Book>> GetBooksByUserId(Guid userId)
     {
-        var user = await DbContext.Set<User>().FindAsync(userId);
+        var user = await _repository.Get<User>(u => u.Id == userId).FirstOrDefaultAsync();
         if (user == null)
             throw new IncorrectDataException("User not found");
         
-        var userBooks = await DbContext.Set<UserBook>()
+        var userBooks = await _repository.GetAll<UserBook>()
             .Where(ub => ub.User== user) 
             .Include(ub => ub.Book)
             .ToListAsync();
