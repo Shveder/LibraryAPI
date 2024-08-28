@@ -1,9 +1,10 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Library.Core.Models.Interfaces;
 
 namespace Library.Core.Models.Base;
 
-public class BaseModel
+public class BaseModel : IModels
 {
     [Key]
     [Column("id")]
