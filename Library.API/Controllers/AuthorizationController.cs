@@ -28,7 +28,7 @@ public class AuthorizationController(IAuthorizationService authorizationService)
     /// <param name="request"></param>
     /// <returns></returns>
     [HttpPost("Register")]
-    public async Task<IActionResult> Login([FromBody] RegisterUserRequest request)
+    public async Task<IActionResult> Register([FromBody] RegisterUserRequest request)
     {
         await authorizationService.Register(request);
         return Ok("Registration successful");
