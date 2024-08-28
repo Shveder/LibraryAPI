@@ -11,5 +11,21 @@ namespace Library.API.Controllers;
 /// </summary>
 [Route("api/UserBook")]
 [ApiController]
-public class UserBookController(IUserBookService bookService)
-    : BaseController<IUserBookService, UserBook, UserBookDto>(bookService);
+public class UserBookController(IUserBookService userBookService)
+    : BaseController<IUserBookService, UserBook, UserBookDto>(userBookService)
+{
+    private readonly IUserBookService _userBookService = userBookService;
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="userId"></param>
+    /// <returns></returns>
+    [HttpGet]
+    [Route("GetBooksByUserId")]
+    public async Task<IActionResult> GetBooksByUserId(Guid userId)
+    {
+        var bookList = await _userBookService.GetBooksByUserId(userId);
+        return Ok(bookList);
+    }
+}

@@ -61,4 +61,22 @@ public class UserBookService(DataContext dbContext, IMapper mapper)
        
         return dto;
     }
+
+    public async Task<IEnumerable<Book>> GetBooksByUserId(Guid userId)
+    {
+        var user = await DbContext.Set<User>().FindAsync(userId);
+        if (user == null)
+            throw new IncorrectDataException("User not found");
+        
+        var userBooks = await DbContext.Set<UserBook>()
+            .Where(ub => ub.User== user) 
+            .Include(ub => ub.Book)
+            .ToListAsync();
+        
+        if (!userBooks.Any())
+            throw new IncorrectDataException("No books found for this user");
+        
+        var books = userBooks.Select(ub => ub.Book).ToList();
+        return books;
+    }
 }
