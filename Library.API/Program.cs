@@ -69,6 +69,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 builder.Services.AddScoped<IAuthorizationService, AuthorizationService>();
+builder.Services.AddScoped<IPhotoService, PhotoService>();
 
 // Custom Services Configuration
 ServiceConfig.RegisterService(builder.Services);
