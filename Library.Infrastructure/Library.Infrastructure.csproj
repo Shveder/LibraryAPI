@@ -33,4 +33,7 @@
       <ProjectReference Include="..\Library.Common\Library.Common.csproj" />
       <ProjectReference Include="..\Library.Core\Library.Core.csproj" />
     </ItemGroup>
+    <ItemGroup>
+      <Folder Include="Uploads\" />
+    </ItemGroup>
 </Project>
