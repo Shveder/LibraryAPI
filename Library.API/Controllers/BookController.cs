@@ -30,5 +30,19 @@ public class BookController (IBookService bookService)
         
         return Ok(new ResponseDto<BookDto>(CommonStrings.SuccessResult, data: entity));
     }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="authorId"></param>
+    /// <returns></returns>
+    [HttpGet]
+    [Route("GetByAuthor")]
+    public async Task<IActionResult> GetByAuthor(Guid authorId)
+    {
+        var entity = await _bookService.GetByAuthor(authorId);
+        
+        return Ok(new ResponseDto<BookDto>(CommonStrings.SuccessResult, data: entity));
+    }
 }
 

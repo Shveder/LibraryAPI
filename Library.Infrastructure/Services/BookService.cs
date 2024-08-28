@@ -68,4 +68,20 @@ public class BookService(DataContext dbContext, IMapper mapper)
        
         return dto;
     }
+    public async Task<BookDto> GetByAuthor(Guid authorId)
+    {
+        var author = await DbContext.Set<Author>().FindAsync(authorId);
+        if (author == null)
+            throw new IncorrectDataException("Author not found");
+        
+        var entity = await DbContext.Set<Book>()
+            .Include(model => model.Author)
+            .FirstOrDefaultAsync(e => e.Author == author);
+        if (entity is null)
+            throw new EntityNotFoundException(CommonStrings.NotFoundResult);
+        
+        var dto = Mapper.Map<BookDto>(entity);
+       
+        return dto;
+    }
 }
