@@ -23,6 +23,7 @@ public class BookController (IBookService bookService)
     /// <param name="isbn"></param>
     /// <returns></returns>
     [HttpGet]
+    [Route("GetBookByIsbn")]
     public async Task<IActionResult> GetByIsbnAsync(string isbn)
     {
         var entity = await _bookService.GetByIsbnAsync(isbn);
