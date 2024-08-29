@@ -78,6 +78,8 @@ ServiceConfig.RegisterService(builder.Services);
 
 #endregion
 
+builder.Services.AddCors();
+builder.Services.AddCors(opt => opt.AddDefaultPolicy(b => b.AllowAnyHeader().AllowAnyMethod().AllowAnyOrigin()));
 
 var app = builder.Build();
 
@@ -145,5 +147,6 @@ using (var scope = app.Services.CreateScope())
 
 #endregion
 
+app.UseCors();
 
 app.Run();
