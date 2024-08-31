@@ -15,11 +15,10 @@ namespace Library.API.Controllers;
 public class AuthorizationController(IAuthorizationService authorizationService) : ControllerBase
 {
     [HttpPost("Login")]
-    [AllowAnonymous]
     public async Task<IActionResult> Login([FromBody] LoginRequest request)
     {
         var token = await authorizationService.GenerateTokenAsync(request.Login, request.Password);
-        return Ok(new { Token = token });
+        return Ok(token);
     }
 
     /// <summary>
