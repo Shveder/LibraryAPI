@@ -28,6 +28,9 @@ Log.Logger = new LoggerConfiguration()
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+builder.Services.AddCors();
+builder.Services.AddCors(opt => opt.AddDefaultPolicy(b => b.AllowAnyHeader().AllowAnyMethod().AllowAnyOrigin()));
+
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -64,6 +67,7 @@ builder.Services.AddControllers().AddJsonOptions(options =>
 builder.Services.AddAutoMapper(typeof(BookProfile));
 builder.Services.AddAutoMapper(typeof(AuthorProfile));
 builder.Services.AddAutoMapper(typeof(UserBookProfile));
+builder.Services.AddAutoMapper(typeof(UserProfile));
 
 // Swagger Configuration
 builder.Services.AddEndpointsApiExplorer();
@@ -78,15 +82,10 @@ ServiceConfig.RegisterService(builder.Services);
 
 #endregion
 
-builder.Services.AddCors();
-builder.Services.AddCors(opt => opt.AddDefaultPolicy(b => b.AllowAnyHeader().AllowAnyMethod().AllowAnyOrigin()));
-
 var app = builder.Build();
 
 #region Middleware
-
 app.UseCors();
-
 // Static Files Configuration
 var baseDirectory = Directory.GetParent(Environment.CurrentDirectory)?.ToString() ?? Environment.CurrentDirectory;
 var filesFolderPath = Path.Combine(baseDirectory, "files");
@@ -148,6 +147,5 @@ using (var scope = app.Services.CreateScope())
 }
 
 #endregion
-
 
 app.Run();
