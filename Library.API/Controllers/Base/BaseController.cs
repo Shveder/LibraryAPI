@@ -3,6 +3,7 @@ using Library.Core.DTO;
 using Library.Core.DTO.Base;
 using Library.Core.Models.Base;
 using Library.Infrastructure.Services.Base;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Library.API.Controllers.Base;
@@ -28,6 +29,7 @@ public class BaseController<TService, TEntity, TEntityDto>(TService service) : C
     /// <param name="id"></param>
     /// <returns></returns>
     [HttpDelete("{id:guid}")]
+    [Authorize]
     public async Task<IActionResult> DeleteAsync(Guid id)
     {
         await _service.DeleteByIdAsync(id);
@@ -41,6 +43,7 @@ public class BaseController<TService, TEntity, TEntityDto>(TService service) : C
     /// <param name="id"></param>
     /// <returns></returns>
     [HttpGet("{id:guid}")]
+    [Authorize]
     public virtual async Task<IActionResult> GetByIdAsync(Guid id)
     {
         var entity = await _service.GetByIdAsync(id);
@@ -54,6 +57,7 @@ public class BaseController<TService, TEntity, TEntityDto>(TService service) : C
     /// <param name="dto"></param>
     /// <returns></returns>
     [HttpPut]
+    [Authorize]
     public virtual async Task<IActionResult> PutAsync(TEntityDto dto)
     {
         var entity = await _service.PutAsync(dto);
@@ -67,6 +71,7 @@ public class BaseController<TService, TEntity, TEntityDto>(TService service) : C
     /// <param name="dto"></param>
     /// <returns></returns>
     [HttpPost]
+    [Authorize]
     public virtual async Task<IActionResult> PostAsync(TEntityDto dto)
     {
         var entity = await _service.PostAsync(dto);
@@ -79,6 +84,7 @@ public class BaseController<TService, TEntity, TEntityDto>(TService service) : C
     /// </summary>
     /// <returns>List of entities.</returns>
     [HttpGet("GetAll")]
+    [Authorize]
     public virtual async Task<IActionResult> GetAllAsync()
     {
         var entity = await _service.GetAllAsync();
