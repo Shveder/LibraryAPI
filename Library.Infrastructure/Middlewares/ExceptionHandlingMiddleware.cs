@@ -1,4 +1,5 @@
 ﻿using System.Net;
+using System.Security.Authentication;
 using Library.Core.DTO;
 using Library.Infrastructure.Exceptions;
 using Microsoft.AspNetCore.Http;
@@ -21,6 +22,10 @@ public class ExceptionHandlingMiddleware(
             await HandleExceptionAsync(ex, httpContext, HttpStatusCode.BadRequest);
         }
         catch (EntityNotFoundException ex)
+        {
+            await HandleExceptionAsync(ex, httpContext, HttpStatusCode.BadRequest);
+        }
+        catch (AuthenticationException ex)
         {
             await HandleExceptionAsync(ex, httpContext, HttpStatusCode.BadRequest);
         }
