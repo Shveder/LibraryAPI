@@ -85,6 +85,8 @@ var app = builder.Build();
 
 #region Middleware
 
+app.UseCors();
+
 // Static Files Configuration
 var baseDirectory = Directory.GetParent(Environment.CurrentDirectory)?.ToString() ?? Environment.CurrentDirectory;
 var filesFolderPath = Path.Combine(baseDirectory, "files");
@@ -147,6 +149,5 @@ using (var scope = app.Services.CreateScope())
 
 #endregion
 
-app.UseCors();
 
 app.Run();
