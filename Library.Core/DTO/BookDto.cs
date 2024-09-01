@@ -22,10 +22,6 @@ public class BookDto : BaseDto
     /// </summary>
     public string Description { get; set; }
     /// <summary>
-    /// Date when book was taken
-    /// </summary>
-    public DateTime DateTaken { get; set; }
-    /// <summary>
     /// Is book available
     /// </summary>
     public bool IsAvailable { get; set; }
