@@ -42,7 +42,7 @@ public class BookController (IBookService bookService)
     {
         var entity = await _bookService.GetByAuthor(authorId);
         
-        return Ok(new ResponseDto<BookDto>(CommonStrings.SuccessResult, data: entity));
+        return Ok(new ResponseDto<IEnumerable<BookDto>>(CommonStrings.SuccessResult, data: entity));
     }
 }
 
