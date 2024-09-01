@@ -26,6 +26,10 @@ public class BookDto : BaseDto
     /// </summary>
     public DateTime DateTaken { get; set; }
     /// <summary>
+    /// Is book available
+    /// </summary>
+    public bool IsAvailable { get; set; }
+    /// <summary>
     /// Author of book
     /// </summary>
     public Guid AuthorId { get; set; }

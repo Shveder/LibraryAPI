@@ -38,7 +38,10 @@ public class UserBookService(DataContext dbContext, IMapper mapper, IDbRepositor
             DateReturn = dto.DateReturn,
             DateTaken = dto.DateTaken,
         };
+        book.IsAvailable = false;
+        book.DateUpdated = DateTime.UtcNow;
         
+        await _repository.Update(book);
         await _repository.Add(userBook);
         await _repository.SaveChangesAsync();
         return dto;

@@ -31,6 +31,7 @@ public class BookService(DataContext dbContext, IMapper mapper, IDbRepository re
             ISBN = dto.ISBN,
             Author = author,
             Description = dto.Description,
+            IsAvailable = dto.IsAvailable,
             Genre = dto.Genre
         };
         

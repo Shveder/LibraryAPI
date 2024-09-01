@@ -21,6 +21,10 @@ public class Book : BaseModel
     /// </summary>
     public string Description { get; set; }
     /// <summary>
+    /// Is book available
+    /// </summary>
+    public bool IsAvailable { get; set; }
+    /// <summary>
     /// Author of book
     /// </summary>
     public Author Author { get; set; }
