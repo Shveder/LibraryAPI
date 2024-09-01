@@ -69,7 +69,7 @@ public class UserBookService(DataContext dbContext, IMapper mapper, IDbRepositor
         return dto;
     }
 
-    public async Task<IEnumerable<Book>> GetBooksByUserId(Guid userId)
+    public async Task<IEnumerable<UserBook>> GetBooksByUserId(Guid userId)
     {
         var user = await _repository.Get<User>(u => u.Id == userId).FirstOrDefaultAsync();
         if (user == null)
@@ -83,7 +83,24 @@ public class UserBookService(DataContext dbContext, IMapper mapper, IDbRepositor
         if (!userBooks.Any())
             throw new IncorrectDataException("No books found for this user");
         
-        var books = userBooks.Select(ub => ub.Book).ToList();
-        return books;
+        return userBooks;
+    }
+    public override async Task DeleteByIdAsync(Guid id)
+    {
+        var entity = await repository.Get<UserBook>(e => e.Id == id)
+            .Include(model=> model.Book)
+            .FirstOrDefaultAsync();
+        if (entity is null)
+            throw new EntityNotFoundException($"{nameof(UserBook)} {CommonStrings.NotFoundResult}");
+
+        var book = await _repository.Get<Book>(b => b.Id == entity.Book.Id).FirstOrDefaultAsync();
+        if (book is null)
+            throw new EntityNotFoundException($"{nameof(UserBook)} {CommonStrings.NotFoundResult}");
+        book.IsAvailable = true;
+        book.DateUpdated = DateTime.UtcNow;
+        
+        await repository.Update(book);
+        await repository.Delete<UserBook>(id);
+        await repository.SaveChangesAsync();
     }
 }

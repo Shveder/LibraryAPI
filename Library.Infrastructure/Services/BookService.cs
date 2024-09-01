@@ -71,19 +71,19 @@ public class BookService(DataContext dbContext, IMapper mapper, IDbRepository re
        
         return dto;
     }
-    public async Task<BookDto> GetByAuthor(Guid authorId)
+    public async Task<IEnumerable<BookDto>> GetByAuthor(Guid authorId)
     {
         var author = await _repository.Get<Author>(a => a.Id == authorId).FirstOrDefaultAsync();
         if (author == null)
             throw new IncorrectDataException("Author not found");
         
-        var entity = await _repository.Get<Book>(e => e.Author == author).
-                Include(model => model.Author).FirstOrDefaultAsync();
-        if (entity is null)
+        var entities = await _repository.Get<Book>(e => e.Author == author).
+                Include(model => model.Author).ToListAsync();
+        if (entities is null)
             throw new EntityNotFoundException(CommonStrings.NotFoundResult);
         
-        var dto = Mapper.Map<BookDto>(entity);
+        var dtos = Mapper.Map<IEnumerable<BookDto>>(entities);
        
-        return dto;
+        return dtos;
     }
 }
