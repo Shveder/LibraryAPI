@@ -8,12 +8,10 @@ public class BookService(DataContext dbContext, IMapper mapper, IDbRepository re
 
     public override async Task<BookDto> PostAsync(BookDto dto)
     {
-        var author = await repository.Get<Author>(a => a.Id == dto.AuthorId).FirstOrDefaultAsync();
-        if (author == null)
-        {
+        var author = await _repository.Get<Author>(a => a.Id == dto.AuthorId).FirstOrDefaultAsync();
+        if (author is null)
             throw new IncorrectDataException("Author not found");
-        }
-
+        
         var book = new Book()
         {
             BookName = dto.BookName,
@@ -24,22 +22,22 @@ public class BookService(DataContext dbContext, IMapper mapper, IDbRepository re
             Genre = dto.Genre
         };
         
-        await repository.Add(book);
-        await repository.SaveChangesAsync();
+        await _repository.Add(book);
+        await _repository.SaveChangesAsync();
+        
         return dto;
     }
     
     public override async Task<IEnumerable<BookDto>> GetAllAsync()
     {
         var entities = _repository.GetAll<Book>().Include(b => b.Author);
-        
         var dtos = Mapper.Map<IEnumerable<BookDto>>(entities);
+        
         return dtos;
     }
     
     public override async Task<BookDto> GetByIdAsync(Guid id)
     {
-        
         var entity = await _repository.Get<Book>(e => e.Id == id)
             .Include(model => model.Author).FirstOrDefaultAsync();
         if (entity is null)
@@ -65,7 +63,7 @@ public class BookService(DataContext dbContext, IMapper mapper, IDbRepository re
     public async Task<IEnumerable<BookDto>> GetByAuthor(Guid authorId)
     {
         var author = await _repository.Get<Author>(a => a.Id == authorId).FirstOrDefaultAsync();
-        if (author == null)
+        if (author is null)
             throw new IncorrectDataException("Author not found");
         
         var entities = await _repository.Get<Book>(e => e.Author == author).

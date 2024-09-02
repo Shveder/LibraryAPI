@@ -9,15 +9,15 @@ public class UserBookService(DataContext dbContext, IMapper mapper, IDbRepositor
     public override async Task<UserBookDto> PostAsync(UserBookDto dto)
     {
         var book = await _repository.Get<Book>(b => b.Id == dto.BookId).FirstOrDefaultAsync();
-        if (book == null)
+        if (book is null)
             throw new IncorrectDataException("Book not found");
         
         var user = await _repository.Get<User>(b => b.Id == dto.UserId).FirstOrDefaultAsync();
-        if (user == null)
+        if (user is null)
             throw new IncorrectDataException("User not found");
         
         var oldUserBook = await _repository.Get<UserBook>(model => model.Book == book).FirstOrDefaultAsync();
-        if (oldUserBook != null)
+        if (oldUserBook is not null)
             throw new IncorrectDataException("Somebody already got this book");
 
         var userBook = new UserBook
@@ -33,6 +33,7 @@ public class UserBookService(DataContext dbContext, IMapper mapper, IDbRepositor
         await _repository.Update(book);
         await _repository.Add(userBook);
         await _repository.SaveChangesAsync();
+        
         return dto;
     }
     
@@ -42,8 +43,10 @@ public class UserBookService(DataContext dbContext, IMapper mapper, IDbRepositor
             .Include(model => model.User)
             .Include(model => model.Book).ToListAsync();
         var dtos = Mapper.Map<IEnumerable<UserBookDto>>(entities);
+        
         return dtos;
     }
+    
     public override async Task<UserBookDto> GetByIdAsync(Guid id)
     {
         var entity = await _repository.Get<UserBook>(e => e.Id == id)
@@ -61,7 +64,7 @@ public class UserBookService(DataContext dbContext, IMapper mapper, IDbRepositor
     public async Task<IEnumerable<UserBook>> GetBooksByUserId(Guid userId)
     {
         var user = await _repository.Get<User>(u => u.Id == userId).FirstOrDefaultAsync();
-        if (user == null)
+        if (user is null)
             throw new IncorrectDataException("User not found");
         
         var userBooks = await _repository.GetAll<UserBook>()
@@ -74,6 +77,7 @@ public class UserBookService(DataContext dbContext, IMapper mapper, IDbRepositor
         
         return userBooks;
     }
+    
     public override async Task DeleteByIdAsync(Guid id)
     {
         var entity = await repository.Get<UserBook>(e => e.Id == id)

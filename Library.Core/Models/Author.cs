@@ -4,7 +4,7 @@ using Library.Core.Models.Base;
 namespace Library.Core.Models;
 
 [AutoInterface]
-public class Author : BaseModel
+public class Author : BaseHasId
 {
     /// <summary>
     /// Name of author

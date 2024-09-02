@@ -2,7 +2,7 @@
 
 namespace Library.Core.Models;
 
-public class User : BaseModel
+public class User : BaseHasId
 {
     /// <summary>
     /// Login of user

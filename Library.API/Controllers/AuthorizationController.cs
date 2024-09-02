@@ -26,5 +26,4 @@ public class AuthorizationController(IAuthorizationService authorizationService)
         await authorizationService.Register(request);
         return Ok("Registration successful");
     }
-    
 }

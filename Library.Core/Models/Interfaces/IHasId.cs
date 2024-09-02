@@ -1,6 +1,6 @@
 ﻿namespace Library.Core.Models.Interfaces;
 
-public interface IModels
+public interface IHasId
 {
     Guid Id { get; set; }
 }

@@ -2,7 +2,7 @@
 
 namespace Library.Core.Models;
 
-public class UserBook : BaseModel
+public class UserBook : BaseHasId
 {
     /// <summary>
     /// User who took the book

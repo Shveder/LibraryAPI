@@ -6,24 +6,24 @@ namespace Library.Infrastructure.Repository;
 [AutoInterface]
 public class DbRepository(DataContext context) : IDbRepository
 {
-    public IQueryable<T> Get<T>() where T : class, IModels
+    public IQueryable<T> Get<T>() where T : class, IHasId
     {
         return context.Set<T>().AsQueryable();
     }
 
-    public IQueryable<T> Get<T>(Expression<Func<T, bool>> selector) where T : class, IModels
+    public IQueryable<T> Get<T>(Expression<Func<T, bool>> selector) where T : class, IHasId
     {
         return context.Set<T>().Where(selector).AsQueryable();
     }
 
-    public async Task<Guid> Add<T>(T newEntity) where T : class, IModels
+    public async Task<Guid> Add<T>(T newEntity) where T : class, IHasId
     {
         var entity = await context.Set<T>().AddAsync(newEntity);
         Console.WriteLine(entity.Entity.Id);
         return entity.Entity.Id;
     }
     
-    public async Task Delete<T>(Guid id) where T : class, IModels
+    public async Task Delete<T>(Guid id) where T : class, IHasId
     {
         var entity = await context.Set<T>().FirstOrDefaultAsync(x => x.Id == id);
         if (entity != null)
@@ -33,7 +33,7 @@ public class DbRepository(DataContext context) : IDbRepository
         }
     }
 
-    public async Task Update<T>(T entity) where T : class, IModels
+    public async Task Update<T>(T entity) where T : class, IHasId
     {
         await Task.Run(() => context.Set<T>().Update(entity));
     }
@@ -43,7 +43,7 @@ public class DbRepository(DataContext context) : IDbRepository
         return await context.SaveChangesAsync();
     }
 
-    public IQueryable<T> GetAll<T>() where T : class, IModels
+    public IQueryable<T> GetAll<T>() where T : class, IHasId
     {
         return context.Set<T>().AsQueryable();
     }

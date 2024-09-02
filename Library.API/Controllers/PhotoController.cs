@@ -9,6 +9,7 @@ public class PhotoController(IPhotoService photoService)
     public async Task<IActionResult> HandleFileUpload([FromRoute] Guid bookId, IFormFile file)
     {
         await photoService.SavePhotoAsync(bookId, file.OpenReadStream());
+        
         return Ok("Uploaded successfully");
     }
 
@@ -16,6 +17,7 @@ public class PhotoController(IPhotoService photoService)
     public async Task<IActionResult> GetPhoto([FromRoute] Guid bookId)
     {
         var photoStream = await photoService.GetPhotoAsync(bookId);
+        
         return File(photoStream, "image/jpeg");
     }
 }

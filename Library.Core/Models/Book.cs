@@ -2,7 +2,7 @@
 
 namespace Library.Core.Models;
 
-public class Book : BaseModel
+public class Book : BaseHasId
 {
     /// <summary>
     /// ISBN of book
