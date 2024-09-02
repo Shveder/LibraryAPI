@@ -11,13 +11,7 @@ public class AuthorService(DataContext dbContext, IMapper mapper, IDbRepository 
         if (await IsAuthorUnique(dto.Name))
             throw new IncorrectDataException("Author with this name already exists");
         
-        var author = new Author()
-        {
-            Name = dto.Name,
-            Surname = dto.Surname,
-            Birthday = dto.Birthday,
-            Country = dto.Country
-        };
+        var author = Mapper.Map<Author>(dto);
         
         await _repository.Add(author);
         await _repository.SaveChangesAsync();
