@@ -8,29 +8,32 @@ public class AuthorizationService(DataContext context, IConfiguration configurat
     {
         var user = await repository.Get<User>(model => model.Login == login).FirstOrDefaultAsync();
 
-        if (user == null)
+        if (user is null)
             throw new IncorrectDataException("Invalid login or password");
 
         password = Hash(password);
         password = Hash(password + user.Salt);
 
-        var user1 = await repository.Get<User>(model =>
-            model.Login == login && model.Password == password).FirstOrDefaultAsync();
+        user = await repository.Get<User>(model => model.Login == login && model.Password == password)
+            .FirstOrDefaultAsync();
 
-        if (user1 == null)
+        if (user is null)
             throw new IncorrectDataException("Invalid login or password");
 
-        return user1;
+        return user;
     }
 
     public async Task Register(RegisterUserRequest request)
     {
         if (request.Password != request.PasswordRepeat)
             throw new IncorrectDataException("Passwords do not match");
+        
         if (await IsLoginUnique(request.Login))
             throw new IncorrectDataException("There is already a user with this login in the system");
+        
         if (request.Login.Length is < 4 or > 32)
             throw new IncorrectDataException("Login length must be between 4 and 32 characters.");
+        
         if (request.Password.Length is < 4 or > 32)
             throw new IncorrectDataException("Password length must be between 4 and 32 characters.");
 
@@ -59,10 +62,9 @@ public class AuthorizationService(DataContext context, IConfiguration configurat
     private string GetSalt()
     {
         byte[] salt = new byte[16];
-        using (var rng = new RNGCryptoServiceProvider())
-        {
-            rng.GetBytes(salt);
-        }
+        var rng = new RNGCryptoServiceProvider();
+        rng.GetBytes(salt);
+        
         return Convert.ToBase64String(salt);
     }
 
@@ -73,9 +75,8 @@ public class AuthorizationService(DataContext context, IConfiguration configurat
             byte[] bytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(inputString));
             StringBuilder sb = new StringBuilder();
             foreach (byte b in bytes)
-            {
                 sb.Append(b.ToString("x2"));
-            }
+            
             return sb.ToString();
         }
     }
@@ -94,10 +95,8 @@ public class AuthorizationService(DataContext context, IConfiguration configurat
                 u.Login == login && u.Password == password).FirstOrDefaultAsync();
 
         if (user == null)
-        {
             throw new EntityNotFoundException("User not found or invalid credentials");
-        }
-
+        
         var claims = new List<Claim>
         {
             new ("id", user.Id.ToString()),
