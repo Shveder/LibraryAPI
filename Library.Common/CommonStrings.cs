@@ -21,32 +21,13 @@ public static class CommonStrings
     public const string SuccessResultPost = "Record successfully created";
 
     /// <summary>
-    /// Message indicating successful retrieval.
-    /// </summary>
-    public const string SuccessResultGet = "Record successfully retrieved";
-
-    /// <summary>
     /// Message indicating successful operation.
     /// </summary>
     public const string SuccessResult = "Operation completed successfully";
-
-    /// <summary>
-    /// Message indicating lack of authorization.
-    /// </summary>
-    public const string UnauthorizedResult = "Unauthorized";
-
-    /// <summary>
-    /// Message indicating forbidden access.
-    /// </summary>
-    public const string ForbiddenResult = "Access denied";
-
+    
     /// <summary>
     /// Message indicating resource not found.
     /// </summary>
     public const string NotFoundResult = "Not found";
     
-    /// <summary>
-    /// Message indicating invalid data.
-    /// </summary>
-    public const string WrongData = "Invalid data";
 }
