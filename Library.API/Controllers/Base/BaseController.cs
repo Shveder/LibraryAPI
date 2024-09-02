@@ -1,12 +1,4 @@
-﻿using Library.Common;
-using Library.Core.DTO;
-using Library.Core.DTO.Base;
-using Library.Core.Models.Base;
-using Library.Infrastructure.Services.Base;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
-
-namespace Library.API.Controllers.Base;
+﻿namespace Library.API.Controllers.Base;
 
 /// <summary>
 /// 

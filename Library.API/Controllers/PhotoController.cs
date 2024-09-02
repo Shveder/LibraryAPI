@@ -1,7 +1,4 @@
-﻿using Library.Infrastructure.Services;
-using Microsoft.AspNetCore.Mvc;
-
-namespace Library.API.Controllers;
+﻿namespace Library.API.Controllers;
 
 [ApiController]
 [Route("[controller]")]

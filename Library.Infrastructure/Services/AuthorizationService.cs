@@ -1,19 +1,4 @@
-﻿using System.Text;
-using AutoInterfaceAttributes;
-using Library.Core.DTO;
-using Library.Core.Models;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using Library.Infrastructure.Exceptions;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
-using Microsoft.IdentityModel.Tokens;
-using System.Security.Cryptography;
-using Library.Infrastructure.DatabaseContext;
-using Library.Infrastructure.Repository;
-
-namespace Library.Infrastructure.Services;
+﻿namespace Library.Infrastructure.Services;
 
 [AutoInterface]
 public class AuthorizationService(DataContext context, IConfiguration configuration,

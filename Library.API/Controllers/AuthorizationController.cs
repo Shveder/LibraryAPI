@@ -1,10 +1,4 @@
-﻿using Library.Core.DTO;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
-using IAuthorizationService = Library.Infrastructure.Services.IAuthorizationService;
-
-namespace Library.API.Controllers;
-
+﻿namespace Library.API.Controllers;
 
 /// <summary>
 /// 

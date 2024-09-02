@@ -1,9 +1,6 @@
 ﻿using System.Net;
 using System.Security.Authentication;
-using Library.Core.DTO;
-using Library.Infrastructure.Exceptions;
 using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Logging;
 
 namespace Library.Infrastructure.Middlewares;
 

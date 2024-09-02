@@ -1,8 +1,4 @@
-﻿using AutoMapper;
-using Library.Core.DTO;
-using Library.Core.Models;
-
-namespace Library.Infrastructure.Mappings;
+﻿namespace Library.Infrastructure.Mappings;
 
 public class AuthorProfile : Profile
 {

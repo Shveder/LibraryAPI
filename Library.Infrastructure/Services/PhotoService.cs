@@ -1,7 +1,4 @@
-﻿using AutoInterfaceAttributes;
-using Microsoft.Extensions.Logging;
-
-namespace Library.Infrastructure.Services;
+﻿namespace Library.Infrastructure.Services;
 
 [AutoInterface]
 public class PhotoService(ILogger<PhotoService> logger) : IPhotoService

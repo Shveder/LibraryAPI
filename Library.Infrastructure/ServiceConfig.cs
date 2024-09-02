@@ -1,6 +1,5 @@
 ﻿using System.Reflection;
 using Microsoft.Extensions.DependencyInjection;
-using Library.Infrastructure.Services.Base;
 
 namespace Library.Infrastructure;
 

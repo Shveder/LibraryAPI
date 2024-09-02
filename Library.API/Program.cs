@@ -1,18 +1,3 @@
-using System.Text;
-using System.Text.Json;
-using Library.Infrastructure;
-using Library.Infrastructure.DatabaseContext;
-using Library.Infrastructure.Mappings;
-using Library.Infrastructure.Middlewares;
-using Library.Infrastructure.Repository;
-using Library.Infrastructure.Services;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.FileProviders;
-using Microsoft.IdentityModel.Tokens;
-using Serilog;
-using Serilog.Events;
-
 var builder = WebApplication.CreateBuilder(args);
 
 // Configure Serilog

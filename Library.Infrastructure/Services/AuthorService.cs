@@ -1,16 +1,4 @@
-﻿using Library.Core.DTO;
-using Library.Core.Models;
-using Library.Infrastructure.DatabaseContext;
-using Library.Infrastructure.Exceptions;
-using Library.Infrastructure.Repository;
-using Library.Infrastructure.Services.Base;
-using Microsoft.EntityFrameworkCore;
-
-namespace Library.Infrastructure.Services;
-
-using AutoInterfaceAttributes;
-using AutoMapper;
-
+﻿namespace Library.Infrastructure.Services;
 
 [AutoInterface(Inheritance = [typeof(IBaseService<AuthorDto, Author>)])]
 public class AuthorService(DataContext dbContext, IMapper mapper, IDbRepository repository)

@@ -1,8 +1,5 @@
 ﻿using System.Linq.Expressions;
-using AutoInterfaceAttributes;
 using Library.Core.Models.Interfaces;
-using Library.Infrastructure.DatabaseContext;
-using Microsoft.EntityFrameworkCore;
 
 namespace Library.Infrastructure.Repository;
 

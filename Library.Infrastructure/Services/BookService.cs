@@ -1,15 +1,4 @@
-﻿using AutoInterfaceAttributes;
-using AutoMapper;
-using Library.Common;
-using Library.Core.DTO;
-using Library.Core.Models;
-using Library.Infrastructure.DatabaseContext;
-using Library.Infrastructure.Exceptions;
-using Library.Infrastructure.Repository;
-using Library.Infrastructure.Services.Base;
-using Microsoft.EntityFrameworkCore;
-
-namespace Library.Infrastructure.Services;
+﻿namespace Library.Infrastructure.Services;
 
 [AutoInterface(Inheritance = [typeof(IBaseService<BookDto, Book>)])]
 public class BookService(DataContext dbContext, IMapper mapper, IDbRepository repository)

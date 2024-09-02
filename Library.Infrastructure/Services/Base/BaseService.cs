@@ -1,13 +1,4 @@
-﻿using AutoInterfaceAttributes;
-using AutoMapper;
-using Library.Common;
-using Library.Core.DTO.Base;
-using Library.Core.Models.Base;
-using Library.Infrastructure.Exceptions;
-using Library.Infrastructure.Repository;
-using Microsoft.EntityFrameworkCore;
-
-namespace Library.Infrastructure.Services.Base;
+﻿namespace Library.Infrastructure.Services.Base;
 
 [AutoInterface]
 public class BaseService<TDto, TEntity>(IDbRepository dbRepository, IMapper mapper) : IBaseService<TDto, TEntity>
