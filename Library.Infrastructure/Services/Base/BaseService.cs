@@ -3,7 +3,7 @@
 [AutoInterface]
 public class BaseService<TDto, TEntity>(IDbRepository dbRepository, IMapper mapper) : IBaseService<TDto, TEntity>
     where TDto : BaseDto
-    where TEntity : BaseHasId
+    where TEntity : BaseModel
 {
     protected readonly IMapper Mapper = mapper;
 

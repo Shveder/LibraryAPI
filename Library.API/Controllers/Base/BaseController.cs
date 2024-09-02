@@ -11,7 +11,7 @@
 public class BaseController<TService, TEntity, TEntityDto>(TService service) : Controller
     where TService : IBaseService<TEntityDto, TEntity>
     where TEntityDto : BaseDto
-    where TEntity : BaseHasId
+    where TEntity : BaseModel
 {
     private readonly TService _service = service;
 

@@ -4,7 +4,7 @@ using Library.Core.Models.Interfaces;
 
 namespace Library.Core.Models.Base;
 
-public class BaseHasId : IHasId
+public class BaseModel : IHasId
 {
     [Key]
     [Column("id")]
