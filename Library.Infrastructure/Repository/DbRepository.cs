@@ -22,8 +22,7 @@ public class DbRepository(DataContext context) : IDbRepository
         Console.WriteLine(entity.Entity.Id);
         return entity.Entity.Id;
     }
-
-
+    
     public async Task Delete<T>(Guid id) where T : class, IModels
     {
         var entity = await context.Set<T>().FirstOrDefaultAsync(x => x.Id == id);

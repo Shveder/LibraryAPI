@@ -23,9 +23,11 @@ public class AuthorService(DataContext dbContext, IMapper mapper, IDbRepository 
         await _repository.SaveChangesAsync();
         return dto;
     }
+    
     private async Task<bool> IsAuthorUnique(string name)
     {
         var author = await _repository.Get<Author>(model => model.Name == name).FirstOrDefaultAsync();
+        
         return author != null;
     }
 }

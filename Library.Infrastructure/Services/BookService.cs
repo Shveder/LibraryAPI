@@ -49,6 +49,7 @@ public class BookService(DataContext dbContext, IMapper mapper, IDbRepository re
        
         return dto;
     }
+    
     public async Task<BookDto> GetByIsbnAsync(string isbn)
     {
         var entity = await _repository.Get<Book>(e => e.ISBN == isbn)
@@ -60,6 +61,7 @@ public class BookService(DataContext dbContext, IMapper mapper, IDbRepository re
        
         return dto;
     }
+    
     public async Task<IEnumerable<BookDto>> GetByAuthor(Guid authorId)
     {
         var author = await _repository.Get<Author>(a => a.Id == authorId).FirstOrDefaultAsync();

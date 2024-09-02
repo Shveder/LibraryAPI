@@ -8,14 +8,17 @@ public class UserBook : BaseModel
     /// User who took the book
     /// </summary>
     public User User { get; set; }
+    
     /// <summary>
     /// Book that was taken
     /// </summary>
     public Book Book { get; set; }
+    
     /// <summary>
     /// Date when book was taken
     /// </summary>
     public DateTime DateTaken { get; set; }
+    
     /// <summary>
     /// The date the book is due to be returned
     /// </summary>
