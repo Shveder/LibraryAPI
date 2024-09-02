@@ -28,7 +28,7 @@ public class UserBookController(IUserBookService userBookService)
     /// <param name="dto"></param>
     /// <returns></returns>
     [HttpPost]
-    [Authorize(Roles = "user")]
+    [Authorize]
     public override async Task<IActionResult> PostAsync(UserBookDto dto)
     {
         var entity = await _userBookService.PostAsync(dto);
