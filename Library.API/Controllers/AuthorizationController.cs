@@ -12,6 +12,7 @@ public class AuthorizationController(IAuthorizationService authorizationService)
     public async Task<IActionResult> Login([FromBody] LoginRequest request)
     {
         var token = await authorizationService.GenerateTokenAsync(request.Login, request.Password);
+        
         return Ok(token);
     }
 
@@ -24,6 +25,7 @@ public class AuthorizationController(IAuthorizationService authorizationService)
     public async Task<IActionResult> Register([FromBody] RegisterUserRequest request)
     {
         await authorizationService.Register(request);
+        
         return Ok("Registration successful");
     }
 }
