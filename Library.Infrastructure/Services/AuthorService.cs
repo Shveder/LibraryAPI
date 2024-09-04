@@ -1,7 +1,7 @@
 ﻿namespace Library.Infrastructure.Services;
 
 [AutoInterface(Inheritance = [typeof(IBaseService<AuthorDto, Author>)])]
-public class AuthorService(DataContext dbContext, IMapper mapper, IDbRepository repository)
+public class AuthorService(IMapper mapper, IDbRepository repository)
     : BaseService<AuthorDto, Author>(repository, mapper), IAuthorService
 {
     private readonly IDbRepository _repository = repository;
