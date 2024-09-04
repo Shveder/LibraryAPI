@@ -68,7 +68,7 @@ public class AuthorizationService(DataContext context, IConfiguration configurat
         return Convert.ToBase64String(salt);
     }
 
-    private string Hash(string inputString)
+    public string Hash(string inputString)
     {
         using (var sha256 = SHA256.Create())
         {

@@ -16,7 +16,7 @@ public class PhotoService(ILogger<PhotoService> logger) : IPhotoService
             File.Delete(filePath);
 
 
-        var file = File.Create(filePath);
+        await using var file = File.Create(filePath);
         await fileStream.CopyToAsync(file);
     }
 
