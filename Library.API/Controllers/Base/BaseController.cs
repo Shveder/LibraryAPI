@@ -1,12 +1,12 @@
 ﻿namespace Library.API.Controllers.Base;
 
 /// <summary>
-/// 
+/// Base controller providing CRUD operations for entities.
 /// </summary>
-/// <param name="service"></param>
-/// <typeparam name="TService"></typeparam>
-/// <typeparam name="TEntity"></typeparam>
-/// <typeparam name="TEntityDto"></typeparam>
+/// <typeparam name="TService">The service type that handles the business logic.</typeparam>
+/// <typeparam name="TEntity">The entity type representing the database model.</typeparam>
+/// <typeparam name="TEntityDto">The data transfer object (DTO) type used for transferring data.</typeparam>
+/// <param name="service">The service instance used for handling operations.</param>
 [Route("api/[controller]")]
 public class BaseController<TService, TEntity, TEntityDto>(TService service) : Controller
     where TService : IBaseService<TEntityDto, TEntity>
@@ -22,6 +22,8 @@ public class BaseController<TService, TEntity, TEntityDto>(TService service) : C
     /// <returns></returns>
     [HttpDelete("{id:guid}")]
     [Authorize]
+    [ProducesResponseType(typeof(ResponseDto<object>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ResponseDto<object>), StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> DeleteAsync(Guid id)
     {
         await _service.DeleteByIdAsync(id);
@@ -30,12 +32,14 @@ public class BaseController<TService, TEntity, TEntityDto>(TService service) : C
     }
 
     /// <summary>
-    /// 
+    /// Retrieves an entity by its ID.
     /// </summary>
-    /// <param name="id"></param>
-    /// <returns></returns>
+    /// <param name="id">The unique identifier of the entity to retrieve.</param>
+    /// <returns>An IActionResult containing the requested entity.</returns>
     [HttpGet("{id:guid}")]
     [Authorize]
+    [ProducesResponseType(typeof(ResponseDto<object>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ResponseDto<object>), StatusCodes.Status500InternalServerError)]
     public virtual async Task<IActionResult> GetByIdAsync(Guid id)
     {
         var entity = await _service.GetByIdAsync(id);
@@ -44,12 +48,15 @@ public class BaseController<TService, TEntity, TEntityDto>(TService service) : C
     }
 
     /// <summary>
-    /// 
+    /// Updates an existing entity.
     /// </summary>
-    /// <param name="dto"></param>
-    /// <returns></returns>
+    /// <param name="dto">The DTO containing the updated information of the entity.</param>
+    /// <returns>An IActionResult containing the updated entity.</returns>
     [HttpPut]
     [Authorize(Roles = "admin")]
+    [ProducesResponseType(typeof(ResponseDto<object>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ResponseDto<object>), StatusCodes.Status500InternalServerError)]
+    [ProducesResponseType(typeof(ResponseDto<object>), StatusCodes.Status422UnprocessableEntity)]
     public virtual async Task<IActionResult> PutAsync(TEntityDto dto)
     {
         var entity = await _service.PutAsync(dto);
@@ -58,12 +65,15 @@ public class BaseController<TService, TEntity, TEntityDto>(TService service) : C
     }
 
     /// <summary>
-    /// 
+    /// Creates a new entity.
     /// </summary>
-    /// <param name="dto"></param>
-    /// <returns></returns>
+    /// <param name="dto">The DTO containing the information of the entity to create.</param>
+    /// <returns>An IActionResult containing the created entity.</returns>
     [HttpPost]
     [Authorize]
+    [ProducesResponseType(typeof(ResponseDto<object>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ResponseDto<object>), StatusCodes.Status500InternalServerError)]
+    [ProducesResponseType(typeof(ResponseDto<object>), StatusCodes.Status422UnprocessableEntity)]
     public virtual async Task<IActionResult> PostAsync(TEntityDto dto)
     {
         var entity = await _service.PostAsync(dto);
@@ -72,11 +82,13 @@ public class BaseController<TService, TEntity, TEntityDto>(TService service) : C
     }
 
     /// <summary>
-    /// Get all entities.
+    /// Retrieves all entities.
     /// </summary>
-    /// <returns>List of entities.</returns>
+    /// <returns>An IActionResult containing the list of all entities.</returns>
     [HttpGet("GetAll")]
     [Authorize]
+    [ProducesResponseType(typeof(ResponseDto<object>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ResponseDto<object>), StatusCodes.Status500InternalServerError)]
     public virtual async Task<IActionResult> GetAllAsync()
     {
         var entity = await _service.GetAllAsync();

@@ -1,9 +1,9 @@
 ﻿namespace Library.API.Controllers;
 
 /// <summary>
-/// 
+/// Controller responsible for managing book-related operations, including fetching books by ISBN, author, and with filters.
 /// </summary>
-/// <param name="bookService"></param>
+/// <param name="bookService">Service handling book-related operations.</param>
 [Route("api/Book")]
 [ApiController]
 public class BookController (IBookService bookService)
@@ -11,12 +11,16 @@ public class BookController (IBookService bookService)
     private readonly IBookService _bookService = bookService;
 
     /// <summary>
-    /// 
+    /// Retrieves a book by its ISBN.
     /// </summary>
-    /// <param name="isbn"></param>
-    /// <returns></returns>
+    /// <param name="isbn">The ISBN of the book.</param>
+    /// <returns>
+    /// The book details corresponding to the provided ISBN.
+    /// </returns>
     [HttpGet]
     [Route("GetBookByIsbn")]
+    [ProducesResponseType(typeof(ResponseDto<BookDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ResponseDto<object>), StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> GetByIsbnAsync(string isbn)
     {
         var entity = await _bookService.GetByIsbnAsync(isbn);
@@ -25,12 +29,17 @@ public class BookController (IBookService bookService)
     }
 
     /// <summary>
-    /// 
+    /// Retrieves books by a specific author.
     /// </summary>
-    /// <param name="authorId"></param>
-    /// <returns></returns>
+    /// <param name="authorId">The ID of the author.</param>
+    /// <returns>
+    /// A list of books written by the specified author.
+    /// </returns>
     [HttpGet]
     [Route("GetByAuthor")]
+    [ProducesResponseType(typeof(ResponseDto<IEnumerable<BookDto>>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ResponseDto<object>), StatusCodes.Status422UnprocessableEntity)]
+    [ProducesResponseType(typeof(ResponseDto<object>), StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> GetByAuthor(Guid authorId)
     {
         var entity = await _bookService.GetByAuthor(authorId);
@@ -39,10 +48,12 @@ public class BookController (IBookService bookService)
     }
     
     /// <summary>
-    /// Получает список сущностей с применением фильтрации.
+    /// Retrieves a list of books with filtering options applied.
     /// </summary>
-    /// <param name="filter">Фильтр для получения сущностей.</param>
-    /// <returns>Список DTO сущностей.</returns>
+    /// <param name="filter">The filter criteria for retrieving books.</param>
+    /// <returns>
+    /// A list of books and the total count based on the applied filters.
+    /// </returns>
     [HttpGet]
     [Route("GetAllFiltered")]
     [ProducesResponseType(typeof(ResponseDto<object>), StatusCodes.Status200OK)]
