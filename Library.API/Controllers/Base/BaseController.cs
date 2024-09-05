@@ -21,7 +21,7 @@ public class BaseController<TService, TEntity, TEntityDto>(TService service) : C
     /// <param name="id"></param>
     /// <returns></returns>
     [HttpDelete("{id:guid}")]
-    [Authorize(Roles = "admin")]
+    [Authorize]
     public async Task<IActionResult> DeleteAsync(Guid id)
     {
         await _service.DeleteByIdAsync(id);
@@ -63,7 +63,7 @@ public class BaseController<TService, TEntity, TEntityDto>(TService service) : C
     /// <param name="dto"></param>
     /// <returns></returns>
     [HttpPost]
-    [Authorize(Roles = "admin")]
+    [Authorize]
     public virtual async Task<IActionResult> PostAsync(TEntityDto dto)
     {
         var entity = await _service.PostAsync(dto);
@@ -80,6 +80,7 @@ public class BaseController<TService, TEntity, TEntityDto>(TService service) : C
     public virtual async Task<IActionResult> GetAllAsync()
     {
         var entity = await _service.GetAllAsync();
+        
         return Ok(new ResponseDto<IEnumerable<TEntityDto>>(CommonStrings.SuccessResult, data: entity));
     }
 }
