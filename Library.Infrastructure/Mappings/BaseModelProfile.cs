@@ -6,7 +6,7 @@ public class BaseModelProfile<TEntity, TDto>: Profile
 {
     protected BaseModelProfile()
     {
-        CreateMap<BaseDto, BaseModel>(); 
-        CreateMap<BaseModel, BaseDto>();
+        CreateMap<TDto, TEntity>(); 
+        CreateMap<TEntity, TDto>();
     }
 }

@@ -11,9 +11,18 @@ public class BookService(DataContext dbContext, IMapper mapper, IDbRepository re
         var author = await _repository.Get<Author>(a => a.Id == dto.AuthorId).FirstOrDefaultAsync();
         if (author is null)
             throw new IncorrectDataException("Author not found");
-        
-        var book = Mapper.Map<Book>(dto);
-        
+
+        var book = new Book()
+        {
+            Id = dto.Id,
+            BookName = dto.BookName,
+            Genre = dto.Genre,
+            Description = dto.Description,
+            ISBN = dto.ISBN,
+            IsAvailable = true,
+            Author = author,
+        };
+            
         await _repository.Add(book);
         await _repository.SaveChangesAsync();
         
