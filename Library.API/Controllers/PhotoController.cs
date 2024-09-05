@@ -2,8 +2,7 @@
 
 [ApiController]
 [Route("[controller]")]
-public class PhotoController(IPhotoService photoService)
-    : ControllerBase
+public class PhotoController(IPhotoService photoService) : ControllerBase
 {
     [HttpPost("HandleFileUpload/{bookId}")]
     public async Task<IActionResult> HandleFileUpload([FromRoute] Guid bookId, IFormFile file)

@@ -20,6 +20,7 @@ public class DbRepository(DataContext context) : IDbRepository
     {
         var entity = await context.Set<T>().AddAsync(newEntity);
         Console.WriteLine(entity.Entity.Id);
+        
         return entity.Entity.Id;
     }
     

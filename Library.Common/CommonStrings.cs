@@ -29,5 +29,4 @@ public static class CommonStrings
     /// Message indicating resource not found.
     /// </summary>
     public const string NotFoundResult = "Not found";
-    
 }

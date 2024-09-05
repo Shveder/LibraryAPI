@@ -14,6 +14,7 @@ public class BaseService<TDto, TEntity>(IDbRepository dbRepository, IMapper mapp
             throw new EntityNotFoundException(CommonStrings.NotFoundResult);
 
         var dto = Mapper.Map<TDto>(entity);
+        
         return dto;
     }
 
@@ -21,6 +22,7 @@ public class BaseService<TDto, TEntity>(IDbRepository dbRepository, IMapper mapp
     {
         var entities = await dbRepository.GetAll<TEntity>().ToListAsync();
         var dtos = Mapper.Map<IEnumerable<TDto>>(entities);
+        
         return dtos;
     }
 
@@ -39,6 +41,7 @@ public class BaseService<TDto, TEntity>(IDbRepository dbRepository, IMapper mapp
         var entity = Mapper.Map<TEntity>(dto);
         await dbRepository.Add(entity);
         await dbRepository.SaveChangesAsync();
+        
         return dto;
     }
 

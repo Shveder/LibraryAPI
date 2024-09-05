@@ -139,6 +139,7 @@ app.Run();
 static async Task SeedDataAsync(DataContext context)
 {
     if (await context.Users.AnyAsync()) return;
+    
     await context.Users.AddAsync(new User{Login = "admin",
         Password = "0185b159c6bddbd7ec53cc96b3589f012e939d91f9c3476ac3f43bbd6ef46dce",
         Salt = "sZdDpAEbpBCPyztnn4BqcQ==", Role = "admin"});

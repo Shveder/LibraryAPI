@@ -56,6 +56,7 @@ public class AuthorizationService(DataContext context, IConfiguration configurat
     private async Task<bool> IsLoginUnique(string login)
     {
         var user = await repository.Get<User>(model => model.Login == login).FirstOrDefaultAsync();
+        
         return user != null;
     }
 
