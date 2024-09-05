@@ -10,7 +10,13 @@ public class BaseModel : IHasId
     [Column("id")]
     public Guid Id { get; set; } = Guid.NewGuid();
 
+    /// <summary>
+    /// Date when model was created
+    /// </summary>
     public DateTime DateCreated { get; set; } = DateTime.UtcNow;
     
+    /// <summary>
+    /// Date when model was updated
+    /// </summary>
     public DateTime? DateUpdated { get; set; }
 }
