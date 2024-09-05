@@ -41,7 +41,6 @@ builder.Services.AddAuthorization();
 builder.Services.AddDbContext<DataContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-
 // Controllers Configuration
 builder.Services.AddControllers().AddJsonOptions(options =>
 {
