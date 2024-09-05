@@ -37,5 +37,25 @@ public class BookController (IBookService bookService)
         
         return Ok(new ResponseDto<IEnumerable<BookDto>>(CommonStrings.SuccessResult, data: entity));
     }
-}
+    
+    /// <summary>
+    /// Получает список сущностей с применением фильтрации.
+    /// </summary>
+    /// <param name="filter">Фильтр для получения сущностей.</param>
+    /// <returns>Список DTO сущностей.</returns>
+    [HttpGet]
+    [Route("GetAllFiltered")]
+    [ProducesResponseType(typeof(ResponseDto<object>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ResponseDto<object>), StatusCodes.Status500InternalServerError)]
+    public virtual async Task<IActionResult> GetFilteredAsync([FromQuery] FilterDto filter)
+    {
+        var (books, totalCount) = await _bookService.GetAllFiltered(filter);
+        var response = new
+        {
+            Books = books,
+            TotalCount = totalCount
+        };
 
+        return Ok(new ResponseDto<object>(CommonStrings.SuccessResult, data: response));
+    }
+}

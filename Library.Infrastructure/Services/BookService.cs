@@ -1,4 +1,7 @@
-﻿namespace Library.Infrastructure.Services;
+﻿using System.ComponentModel;
+using System.Linq.Expressions;
+
+namespace Library.Infrastructure.Services;
 
 [AutoInterface(Inheritance = [typeof(IBaseService<BookDto, Book>)])]
 public class BookService(DataContext dbContext, IMapper mapper, IDbRepository repository)
@@ -31,7 +34,7 @@ public class BookService(DataContext dbContext, IMapper mapper, IDbRepository re
     
     public override async Task<IEnumerable<BookDto>> GetAllAsync()
     {
-        var entities = _repository.GetAll<Book>().Include(b => b.Author);
+        var entities = _repository.GetAll<Book>().Include(b => b.Author).AsQueryable();
         var dtos = Mapper.Map<IEnumerable<BookDto>>(entities);
         
         return dtos;
@@ -75,5 +78,33 @@ public class BookService(DataContext dbContext, IMapper mapper, IDbRepository re
         var dtos = Mapper.Map<IEnumerable<BookDto>>(entities);
        
         return dtos;
+    }
+    
+    public virtual async Task<(IEnumerable<BookDto> Books, int TotalCount)> GetAllFiltered(FilterDto filter)
+    {
+        // Начальная запрос
+        IQueryable<Book> query = _repository.GetAll<Book>().Include(b => b.Author).AsQueryable();
+
+        if (filter.AuthorId.HasValue)
+            query = query.Where(b => b.Author.Id == filter.AuthorId.Value);
+        
+        if (!string.IsNullOrEmpty(filter.Genre))
+            query = query.Where(b => EF.Functions.Like(b.Genre, filter.Genre));
+        
+        if (!string.IsNullOrEmpty(filter.Search))
+        {
+            var searchPattern = $"%{filter.Search.ToLower()}%";
+            query = query.Where(b => EF.Functions.Like(b.BookName.ToLower(), searchPattern) 
+                                     || EF.Functions.Like(b.Description.ToLower(), searchPattern));
+        }
+       
+        var totalCount = await query.CountAsync();
+
+        var skip = (filter.PageNumber - 1) * filter.PageSize;
+        var books = await query.Skip(skip).Take(filter.PageSize).ToListAsync();
+
+        var bookDtos = books.Select(entity => Mapper.Map<BookDto>(entity)).ToList();
+
+        return (bookDtos, totalCount);
     }
 }
