@@ -9,10 +9,4 @@ public class DataContext(DbContextOptions<DataContext> options) : DbContext(opti
     public DbSet<User> Users { get; set; }
     
     public DbSet<UserBook> UserBooks { get; set; }
-    
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-    {
-        optionsBuilder.UseNpgsql(
-            @"Host=localhost;Port=5432;Database=library;Username=postgres;Password=postgres");
-    }
 }
