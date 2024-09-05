@@ -8,6 +8,11 @@
 [Route("[controller]")]
 public class AuthorizationController(IAuthorizationService authorizationService) : ControllerBase
 {
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="request"></param>
+    /// <returns></returns>
     [HttpPost("Login")]
     public async Task<IActionResult> Login([FromBody] LoginRequest request)
     {
