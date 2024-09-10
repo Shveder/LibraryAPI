@@ -18,7 +18,7 @@ public class AuthorizationController(IAuthorizationService authorizationService)
     [HttpPost("Login")]
     [ProducesResponseType(typeof(ResponseDto<object>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ResponseDto<object>), StatusCodes.Status500InternalServerError)]
-    [ProducesResponseType(typeof(ResponseDto<object>), StatusCodes.Status422UnprocessableEntity)]
+    [ProducesResponseType(typeof(ResponseDto<object>), StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> Login([FromBody] LoginRequest request)
     {
         var token = await authorizationService.GenerateTokenAsync(request.Login, request.Password);
@@ -36,7 +36,7 @@ public class AuthorizationController(IAuthorizationService authorizationService)
     [HttpPost("Register")]
     [ProducesResponseType(typeof(ResponseDto<object>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ResponseDto<object>), StatusCodes.Status500InternalServerError)]
-    [ProducesResponseType(typeof(ResponseDto<object>), StatusCodes.Status422UnprocessableEntity)]
+    [ProducesResponseType(typeof(ResponseDto<object>), StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> Register([FromBody] RegisterUserRequest request)
     {
         await authorizationService.Register(request);

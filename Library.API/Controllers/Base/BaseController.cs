@@ -56,7 +56,7 @@ public class BaseController<TService, TEntity, TEntityDto>(TService service) : C
     [Authorize(Roles = "admin")]
     [ProducesResponseType(typeof(ResponseDto<object>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ResponseDto<object>), StatusCodes.Status500InternalServerError)]
-    [ProducesResponseType(typeof(ResponseDto<object>), StatusCodes.Status422UnprocessableEntity)]
+    [ProducesResponseType(typeof(ResponseDto<object>), StatusCodes.Status400BadRequest)]
     public virtual async Task<IActionResult> PutAsync(TEntityDto dto)
     {
         var entity = await _service.PutAsync(dto);
@@ -73,7 +73,7 @@ public class BaseController<TService, TEntity, TEntityDto>(TService service) : C
     [Authorize]
     [ProducesResponseType(typeof(ResponseDto<object>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ResponseDto<object>), StatusCodes.Status500InternalServerError)]
-    [ProducesResponseType(typeof(ResponseDto<object>), StatusCodes.Status422UnprocessableEntity)]
+    [ProducesResponseType(typeof(ResponseDto<object>), StatusCodes.Status400BadRequest)]
     public virtual async Task<IActionResult> PostAsync(TEntityDto dto)
     {
         var entity = await _service.PostAsync(dto);

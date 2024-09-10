@@ -38,7 +38,7 @@ public class BookController (IBookService bookService)
     [HttpGet]
     [Route("GetByAuthor")]
     [ProducesResponseType(typeof(ResponseDto<IEnumerable<BookDto>>), StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(ResponseDto<object>), StatusCodes.Status422UnprocessableEntity)]
+    [ProducesResponseType(typeof(ResponseDto<object>), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ResponseDto<object>), StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> GetByAuthor(Guid authorId)
     {
