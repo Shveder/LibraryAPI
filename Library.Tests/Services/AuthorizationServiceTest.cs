@@ -1,4 +1,6 @@
-﻿namespace Library.Tests.Services;
+﻿using Library.Infrastructure.Mappings;
+
+namespace Library.Tests.Services;
 
 [TestFixture]
 public class AuthorizationServiceTests : BaseTest
@@ -7,6 +9,7 @@ public class AuthorizationServiceTests : BaseTest
     private Mock<IConfiguration> _configurationMock;
     private Mock<ILogger<AuthorizationService>> _loggerMock;
     private DbRepository _repository;
+    private Mock<IMapper> _mapperMock;
 
     [SetUp]
     public new void Setup()
@@ -15,13 +18,19 @@ public class AuthorizationServiceTests : BaseTest
 
         _configurationMock = new Mock<IConfiguration>();
         _loggerMock = new Mock<ILogger<AuthorizationService>>();
+        var configuration = new MapperConfiguration(cfg =>
+        {
+            cfg.AddProfile<UserProfile>();
+        });
+        var mapper = new Mapper(configuration);
 
         _repository = new DbRepository(Context);
         _service = new AuthorizationService(
             Context,
             _configurationMock.Object,
             _loggerMock.Object,
-            _repository);
+            _repository,
+            mapper);
     }
 
     [Test]

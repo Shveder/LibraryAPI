@@ -2,7 +2,7 @@
 
 [AutoInterface]
 public class AuthorizationService(DataContext context, IConfiguration configuration,
-    ILogger<AuthorizationService> logger, IDbRepository repository) : IAuthorizationService
+    ILogger<AuthorizationService> logger, IDbRepository repository, IMapper mapper) : IAuthorizationService
 {
     public async Task<User> Login(string login, string password)
     {
@@ -41,13 +41,11 @@ public class AuthorizationService(DataContext context, IConfiguration configurat
         string salt = GetSalt();
         request.Password = Hash(request.Password + salt);
 
-        var user = new User
-        {
-            Login = request.Login,
-            Password = request.Password,
-            Salt = salt,
-            Role = "user"
-        };
+        var user = mapper.Map<User>(request);
+        user.Password = request.Password;
+        user.Salt = salt;
+        user.Role = "user"; 
+
         await repository.Add(user);
         await repository.SaveChangesAsync();
         logger.LogInformation($"User created (Login: {request.Login})");

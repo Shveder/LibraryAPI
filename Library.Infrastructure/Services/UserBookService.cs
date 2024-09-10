@@ -20,21 +20,17 @@ public class UserBookService(DataContext dbContext, IMapper mapper, IDbRepositor
         if (oldUserBook is not null)
             throw new IncorrectDataException("Somebody already got this book");
 
-        var userBook = new UserBook
-        {
-            Book = book,
-            User = user,
-            DateReturn = dto.DateReturn,
-            DateTaken = dto.DateTaken,
-        };
+        var userBook = mapper.Map<UserBook>(dto);
+        userBook.Book = book;
+        userBook.User = user;
         book.IsAvailable = false;
         book.DateUpdated = DateTime.UtcNow;
-        
+
         await _repository.Update(book);
         await _repository.Add(userBook);
         await _repository.SaveChangesAsync();
-        
-        return dto;
+
+        return mapper.Map<UserBookDto>(userBook); 
     }
     
     public override async Task<IEnumerable<UserBookDto>> GetAllAsync()

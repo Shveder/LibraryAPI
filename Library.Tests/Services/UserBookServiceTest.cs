@@ -56,21 +56,33 @@ public class UserBookServiceTest : BaseTest
         var author = CreateAuthor(new Guid());
         var book = CreateBook(Guid.NewGuid(), author);
         var user = CreateUser(new Guid());
-            
+
         await Context.Users.AddAsync(user);
         await Context.Authors.AddAsync(author);
         await Context.Books.AddAsync(book);
         await Context.SaveChangesAsync();
-            
+
         var userBookDto = new UserBookDto()
         {
-            Id = new Guid(),
+            Id = Guid.NewGuid(),
             BookId = book.Id,
             UserId = user.Id,
             DateTaken = DateTime.UtcNow,
             DateReturn = DateTime.UtcNow.AddHours(1)
         };
-            
+
+        var userBook = new UserBook
+        {
+            Id = userBookDto.Id,
+            Book = book,
+            User = user,
+            DateTaken = userBookDto.DateTaken,
+            DateReturn = userBookDto.DateReturn
+        };
+
+        _mapperMock.Setup(m => m.Map<UserBook>(userBookDto)).Returns(userBook);
+        _mapperMock.Setup(m => m.Map<UserBookDto>(userBook)).Returns(userBookDto);
+
         // Act
         var result = await _service.PostAsync(userBookDto);
 
@@ -78,7 +90,6 @@ public class UserBookServiceTest : BaseTest
         result.Should().NotBeNull();
         result.Id.Should().Be(userBookDto.Id);
     }
-
 
     [Test]
     public async Task GetAllUserBooks()
