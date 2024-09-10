@@ -32,7 +32,7 @@ public class BaseService<TDto, TEntity>(IDbRepository dbRepository, IMapper mapp
         if (entity is null)
             throw new EntityNotFoundException($"{typeof(TEntity).Name} {CommonStrings.NotFoundResult}");
 
-        await dbRepository.Delete<TEntity>(id);
+        await dbRepository.Delete(entity);
         await dbRepository.SaveChangesAsync();
     }
 

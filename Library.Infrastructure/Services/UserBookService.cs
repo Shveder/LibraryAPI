@@ -89,11 +89,12 @@ public class UserBookService(DataContext dbContext, IMapper mapper, IDbRepositor
         var book = await _repository.Get<Book>(b => b.Id == entity.Book.Id).FirstOrDefaultAsync();
         if (book is null)
             throw new EntityNotFoundException($"{nameof(UserBook)} {CommonStrings.NotFoundResult}");
+        
         book.IsAvailable = true;
         book.DateUpdated = DateTime.UtcNow;
         
         await repository.Update(book);
-        await repository.Delete<UserBook>(id);
+        await repository.Delete(entity);
         await repository.SaveChangesAsync();
     }
 }

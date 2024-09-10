@@ -24,9 +24,8 @@ public class DbRepository(DataContext context) : IDbRepository
         return entity.Entity.Id;
     }
     
-    public async Task Delete<T>(Guid id) where T : class, IHasId
+    public async Task Delete<T>(T entity) where T : class, IHasId
     {
-        var entity = await context.Set<T>().FirstOrDefaultAsync(x => x.Id == id);
         context.Set<T>().Remove(entity);
         await context.SaveChangesAsync();
     }
