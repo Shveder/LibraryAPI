@@ -1,32 +1,29 @@
 ﻿namespace Library.Tests.Services;
 
 [TestFixture]
-public class PhotoServiceTest
+public class PhotoUseCasesTests
 {
-    private PhotoService _service;
-    private Mock<ILogger<PhotoService>> _loggerMock;
+    private IAddPhotoUseCase _savePhotoUseCase;
+    private IGetPhotoUseCase _getPhotoUseCase;
     private string _testRootLocation;
 
     [SetUp]
     public void Setup()
     {
-        _loggerMock = new Mock<ILogger<PhotoService>>();
-        _service = new PhotoService(_loggerMock.Object);
+        _testRootLocation = Path.Combine(Directory.GetCurrentDirectory(), "uploads");
+        Directory.CreateDirectory(Path.Combine(_testRootLocation, "books"));
 
-        // Set up test directory
-        _testRootLocation = Path.Combine(Directory.GetCurrentDirectory(), "test_uploads");
-        Directory.CreateDirectory(_testRootLocation);
-
-        // Set private field _rootLocation to test directory using reflection
-        typeof(PhotoService)
+        _savePhotoUseCase = new AddPhotoUseCase();
+        _getPhotoUseCase = new GetPhotoUseCase();
+        
+        typeof(AddPhotoUseCase)
             .GetField("_rootLocation", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)
-            ?.SetValue(_service, _testRootLocation);
+            ?.SetValue(_savePhotoUseCase, _testRootLocation);
     }
 
     [TearDown]
     public void Teardown()
     {
-        // Clean up test directory
         if (Directory.Exists(_testRootLocation))
         {
             Directory.Delete(_testRootLocation, true);
@@ -42,13 +39,12 @@ public class PhotoServiceTest
         using var fileStream = new MemoryStream(fileContent);
 
         // Act
-        await _service.SavePhotoAsync(bookId, fileStream);
+        await _savePhotoUseCase.SavePhotoAsync(bookId, fileStream);
 
         // Assert
         var savedFilePath = Path.Combine(_testRootLocation, "books", bookId.ToString(), $"{bookId}.jpg");
         File.Exists(savedFilePath).Should().BeTrue();
 
-        // Ensure the file stream is properly disposed before accessing the file
         await using var savedFileStream = new FileStream(savedFilePath, FileMode.Open, FileAccess.Read, FileShare.None);
         var savedContent = new byte[savedFileStream.Length];
         await savedFileStream.ReadAsync(savedContent, 0, savedContent.Length);
@@ -67,7 +63,7 @@ public class PhotoServiceTest
         await File.WriteAllBytesAsync(filePath, content);
 
         // Act
-        await using var resultStream = await _service.GetPhotoAsync(bookId);
+        await using var resultStream = await _getPhotoUseCase.GetPhotoAsync(bookId);
 
         // Assert
         resultStream.Should().NotBeNull();

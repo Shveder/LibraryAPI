@@ -4,8 +4,10 @@
 /// Controller for managing authors.
 /// Inherits common CRUD operations from the BaseController.
 /// </summary>
-/// <param name="authorService">The service responsible for handling author-related operations.</param>
 [Route("api/Author")]
 [ApiController]
-public class AuthorController(IAuthorService authorService)
-    : BaseController<IAuthorService, Author, AuthorDto>(authorService);
+public class AuthorController(IPostAuthorUseCase postUseCase,
+    IGetAllAuthorsUseCase getAllUseCase, IGetAuthorByIdUseCase getByIdUseCase,
+    IDeleteAuthorByIdUseCase deleteUseCase, IPutAuthorUseCase putUseCase)
+    : BaseController<IPostAuthorUseCase, IGetAllAuthorsUseCase, IGetAuthorByIdUseCase, IDeleteAuthorByIdUseCase,
+        IPutAuthorUseCase, Author, AuthorDto>(postUseCase, getAllUseCase, getByIdUseCase, deleteUseCase, putUseCase);

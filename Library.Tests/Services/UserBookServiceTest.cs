@@ -3,8 +3,15 @@
 [TestFixture]
 public class UserBookServiceTest : BaseTest
 {
-    private IUserBookService _service;
+    private IDeleteUserBookUseCase _deleteUserBook;
+    private IGetAllUserBooksUseCase _getAllUserBooks;
+    private IGetUserBookByIdUseCase _getUserBookById;
+    private IGetBookByUserUseCase _getBookByUser;
+    private IPostUserBookUseCase _postUserBook;
+    private IPutUserBookUseCase _putUserBook;
     private Mock<IMapper> _mapperMock;
+    private DbRepository _repository;
+    
 
     [SetUp]
     public new void Setup()
@@ -12,11 +19,25 @@ public class UserBookServiceTest : BaseTest
         base.Setup();
 
         _mapperMock = new Mock<IMapper>();
+        _repository = new DbRepository(Context);
 
-        _service = new UserBookService(
-            Context,
-            _mapperMock.Object,
-            new DbRepository(Context));
+        _deleteUserBook = new DeleteUserBookUseCase(
+            _repository,
+            _mapperMock.Object);
+        _getAllUserBooks = new GetAllUserBooksUseCase(
+            _repository,
+            _mapperMock.Object);
+        _getUserBookById = new GetUserBookByIdUseCase(
+            _repository,
+            _mapperMock.Object);
+        _getBookByUser = new GetBookByUserUseCase(
+            _repository);
+        _postUserBook = new PostUserBookUseCase(
+            _repository,
+            _mapperMock.Object);
+        _putUserBook = new PutUserBookUseCase(
+            _repository,
+            _mapperMock.Object);
     }
 
     [Test]
@@ -42,7 +63,7 @@ public class UserBookServiceTest : BaseTest
         });
             
         // Act
-        var result = await _service.GetByIdAsync(userBook.Id);
+        var result = await _getUserBookById.GetByIdAsync(userBook.Id);
 
         // Assert
         result.Should().NotBeNull();
@@ -84,7 +105,7 @@ public class UserBookServiceTest : BaseTest
         _mapperMock.Setup(m => m.Map<UserBookDto>(userBook)).Returns(userBookDto);
 
         // Act
-        var result = await _service.PostAsync(userBookDto);
+        var result = await _postUserBook.PostAsync(userBookDto);
 
         // Assert
         result.Should().NotBeNull();
@@ -114,7 +135,7 @@ public class UserBookServiceTest : BaseTest
         await Context.SaveChangesAsync();
             
         // Act
-        var result = await _service.GetAllAsync();
+        var result = await _getAllUserBooks.GetAllAsync();
 
         // Assert
         result.Should().NotBeNull();
@@ -150,7 +171,7 @@ public class UserBookServiceTest : BaseTest
         });
 
         // Act
-        var result = await _service.PutAsync(updatedDto);
+        var result = await _putUserBook.PutAsync(updatedDto);
 
         // Assert
         result.Should().NotBeNull();
@@ -176,7 +197,7 @@ public class UserBookServiceTest : BaseTest
         await Context.SaveChangesAsync();
 
         // Act
-        await _service.DeleteByIdAsync(userBook.Id);
+        await _deleteUserBook.DeleteByIdAsync(userBook.Id);
 
         // Assert
         var deletedBook = await Context.Books.FindAsync(userBook.Id);
@@ -201,7 +222,7 @@ public class UserBookServiceTest : BaseTest
         await Context.SaveChangesAsync();
             
         // Act
-        var result = await _service.GetBooksByUserId(user.Id);
+        var result = await _getBookByUser.GetBooksByUserId(user.Id);
 
         // Assert
         result.Should().NotBeNull();

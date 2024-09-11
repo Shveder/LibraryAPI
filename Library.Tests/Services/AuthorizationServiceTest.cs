@@ -1,13 +1,12 @@
-﻿using Library.Infrastructure.Mappings;
-
-namespace Library.Tests.Services;
+﻿namespace Library.Tests.Services;
 
 [TestFixture]
-public class AuthorizationServiceTests : BaseTest
+public class AuthorizationUseCasesTests : BaseTest
 {
-    private IAuthorizationService _service;
+    private ILoginUseCase _loginUseCase;
+    private IRegisterUseCase _registerUseCase;
     private Mock<IConfiguration> _configurationMock;
-    private Mock<ILogger<AuthorizationService>> _loggerMock;
+    private Mock<ILogger<RegisterUseCase>> _registerLoggerMock;
     private DbRepository _repository;
     private Mock<IMapper> _mapperMock;
 
@@ -17,34 +16,29 @@ public class AuthorizationServiceTests : BaseTest
         base.Setup();
 
         _configurationMock = new Mock<IConfiguration>();
-        _loggerMock = new Mock<ILogger<AuthorizationService>>();
+        _registerLoggerMock = new Mock<ILogger<RegisterUseCase>>();
+        _mapperMock = new Mock<IMapper>();
+
         var configuration = new MapperConfiguration(cfg =>
         {
             cfg.AddProfile<UserProfile>();
         });
-        var mapper = new Mapper(configuration);
 
         _repository = new DbRepository(Context);
-        _service = new AuthorizationService(
-            Context,
-            _configurationMock.Object,
-            _loggerMock.Object,
-            _repository,
-            mapper);
-    }
 
-    [Test]
-    public void Login_InvalidCredentials_ShouldThrowIncorrectDataException()
-    {
-        // Arrange
-        const string login = "invalid user";
-        const string password = "invalid password";
-            
-        // Act
-        Func<Task> act = async () => await _service.Login(login, password);
+        // Настройка маппера mock
+        _mapperMock
+            .Setup(m => m.Map<User>(It.IsAny<RegisterUserRequest>()))
+            .Returns((RegisterUserRequest src) => new User
+            {
+                Login = src.Login,
+                Password = "",
+                Salt = "",
+                Role = ""
+            });
 
-        // Assert
-        act.Should().ThrowAsync<IncorrectDataException>().WithMessage("Invalid login or password");
+        _loginUseCase = new LoginUseCase(_configurationMock.Object, _repository);
+        _registerUseCase = new RegisterUseCase(_mapperMock.Object, _repository, _registerLoggerMock.Object);
     }
 
     [Test]
@@ -59,7 +53,7 @@ public class AuthorizationServiceTests : BaseTest
         };
 
         // Act
-        await _service.Register(request);
+        await _registerUseCase.Register(request);
 
         // Assert
         Assert.That(_repository.Get<User>(model => model.Login == request.Login), Is.Not.Null);
@@ -78,7 +72,7 @@ public class AuthorizationServiceTests : BaseTest
         };
 
         // Act
-        Func<Task> act = async () => await _service.Register(request);
+        Func<Task> act = async () => await _registerUseCase.Register(request);
 
         // Assert
         act.Should().ThrowAsync<IncorrectDataException>().WithMessage("Passwords do not match");
@@ -96,7 +90,7 @@ public class AuthorizationServiceTests : BaseTest
         };
             
         // Act
-        Func<Task> act = async () => await _service.Register(request);
+        Func<Task> act = async () => await _registerUseCase.Register(request);
 
         // Assert
         act.Should().ThrowAsync<IncorrectDataException>().WithMessage("There is already a user with this login in the system");
@@ -109,8 +103,8 @@ public class AuthorizationServiceTests : BaseTest
         var login = "tester";
         var password = "password";
         var salt = "salt";
-        var hashedPassword = _service.Hash(password);
-        hashedPassword = _service.Hash(hashedPassword + salt);
+        var hashedPassword = Hash(password);
+        hashedPassword = Hash(hashedPassword + salt);
             
         var user = new User
         {
@@ -127,7 +121,7 @@ public class AuthorizationServiceTests : BaseTest
         _configurationMock.Setup(c => c["Jwt:Audience"]).Returns("your_audience");
 
         // Act
-        var token = await _service.GenerateTokenAsync(login, password);
+        var token = await _loginUseCase.GenerateTokenAsync(login, password);
 
         // Assert
         token.Should().NotBeNullOrEmpty();
@@ -142,9 +136,22 @@ public class AuthorizationServiceTests : BaseTest
         _configurationMock.Setup(c => c["Jwt:Audience"]).Returns("your_audience");
 
         // Act
-        Func<Task> act = async () => await _service.GenerateTokenAsync("invalid user", "invalid password");
+        Func<Task> act = async () => await _loginUseCase.GenerateTokenAsync("invalid user", "invalid password");
 
         // Assert
         act.Should().ThrowAsync<IncorrectDataException>().WithMessage("Invalid login or password");
+    }
+    
+    private string Hash(string inputString)
+    {
+        using (var sha256 = SHA256.Create())
+        {
+            byte[] bytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(inputString));
+            StringBuilder sb = new StringBuilder();
+            foreach (byte b in bytes)
+                sb.Append(b.ToString("x2"));
+            
+            return sb.ToString();
+        }
     }
 }

@@ -1,30 +1,40 @@
 ﻿namespace Library.Tests.Services;
 
 [TestFixture]
-public class BookServiceTest : BaseTest
+public class BookUseCasesTests : BaseTest
 {
-    private IBookService _service;
+    private IGetBookByIdUseCase _getBookByIdUseCase;
+    private IPostBookUseCase _postBookUseCase;
+    private IGetAllBooksUseCase _getAllBooksUseCase;
+    private IPutBookUseCase _putBookUseCase;
+    private IDeleteBookUseCase _deleteBookUseCase;
+    private IGetBookByIsbnUseCase _getBookByIsbnUseCase;
+    private IGetByAuthorUseCase _getBooksByAuthorUseCase;
     private Mock<IMapper> _mapperMock;
+    private DbRepository _repository;
 
     [SetUp]
     public new void Setup()
     {
         base.Setup();
-
         _mapperMock = new Mock<IMapper>();
+        _repository = new DbRepository(Context);
 
-        _service = new BookService(
-            Context,
-            _mapperMock.Object,
-            new DbRepository(Context));
+        _getBookByIdUseCase = new GetBookByIdUseCase(_repository, _mapperMock.Object);
+        _postBookUseCase = new PostBookUseCase(_repository, _mapperMock.Object);
+        _getAllBooksUseCase = new GetAllBooksUseCase(_repository, _mapperMock.Object);
+        _putBookUseCase = new PutBookUseCase(_repository, _mapperMock.Object);
+        _deleteBookUseCase = new DeleteBookUseCase(_repository, _mapperMock.Object);
+        _getBookByIsbnUseCase = new GetBookByIsbnUseCase(_repository, _mapperMock.Object);
+        _getBooksByAuthorUseCase = new GetByAuthorUseCase(_repository, _mapperMock.Object);
     }
 
     [Test]
-    public async Task GetBookById()
+    public async Task GetBookById_ShouldReturnBook()
     {
         // Arrange
         var bookId = Guid.NewGuid();
-        var author = CreateAuthor(new Guid());
+        var author = CreateAuthor(Guid.NewGuid());
         var book = CreateBook(bookId, author);
 
         await Context.Books.AddAsync(book);
@@ -37,7 +47,7 @@ public class BookServiceTest : BaseTest
         });
 
         // Act
-        var result = await _service.GetByIdAsync(bookId);
+        var result = await _getBookByIdUseCase.GetByIdAsync(bookId);
 
         // Assert
         result.Should().NotBeNull();
@@ -45,16 +55,16 @@ public class BookServiceTest : BaseTest
     }
 
     [Test]
-    public async Task PostBook()
+    public async Task PostBook_ShouldAddBook()
     {
         // Arrange
         var bookId = Guid.NewGuid();
         var authorId = Guid.NewGuid();
-    
         var author = CreateAuthor(authorId);
+
         await Context.Authors.AddAsync(author);
         await Context.SaveChangesAsync();
-    
+
         var bookDto = new BookDto
         {
             Id = bookId,
@@ -67,28 +77,28 @@ public class BookServiceTest : BaseTest
         };
 
         var book = CreateBook(bookId, author);
-            
+
         _mapperMock.Setup(m => m.Map<Book>(It.IsAny<BookDto>())).Returns(book);
-            
         _mapperMock.Setup(m => m.Map<BookDto>(It.IsAny<Book>())).Returns(bookDto);
 
         // Act
-        var result = await _service.PostAsync(bookDto);
+        await _postBookUseCase.PostAsync(bookDto);
 
         // Assert
-        result.Should().NotBeNull();
-        result.Id.Should().Be(bookId);
+        var addedBook = await Context.Books.FindAsync(bookId);
+        addedBook.Should().NotBeNull();
+        addedBook.BookName.Should().Be(bookDto.BookName);
     }
 
     [Test]
-    public async Task GetAllBooks()
-    { 
-        var author = CreateAuthor(Guid.NewGuid());
+    public async Task GetAllBooks_ShouldReturnAllBooks()
+    {
         // Arrange
+        var author = CreateAuthor(Guid.NewGuid());
         var books = new List<Book>
         {
-            CreateBook(new Guid(), author),
-            CreateBook(new Guid(), author)
+            CreateBook(Guid.NewGuid(), author),
+            CreateBook(Guid.NewGuid(), author)
         };
 
         await Context.Books.AddRangeAsync(books);
@@ -98,14 +108,14 @@ public class BookServiceTest : BaseTest
             .Returns(books.Select(b => new BookDto { Id = b.Id, Genre = b.Genre }).ToList());
 
         // Act
-        var result = await _service.GetAllAsync();
+        var result = await _getAllBooksUseCase.GetAllAsync();
 
         // Assert
         result.Should().NotBeNull();
     }
 
     [Test]
-    public async Task PutBook()
+    public async Task PutBook_ShouldUpdateBook()
     {
         // Arrange
         var bookId = Guid.NewGuid();
@@ -130,7 +140,7 @@ public class BookServiceTest : BaseTest
         });
 
         // Act
-        var result = await _service.PutAsync(updatedDto);
+        var result = await _putBookUseCase.PutAsync(updatedDto);
 
         // Assert
         result.Should().NotBeNull();
@@ -138,7 +148,7 @@ public class BookServiceTest : BaseTest
     }
 
     [Test]
-    public async Task DeleteBook()
+    public async Task DeleteBook_ShouldRemoveBook()
     {
         // Arrange
         var bookId = Guid.NewGuid();
@@ -149,7 +159,7 @@ public class BookServiceTest : BaseTest
         await Context.SaveChangesAsync();
 
         // Act
-        await _service.DeleteByIdAsync(bookId);
+        await _deleteBookUseCase.DeleteByIdAsync(bookId);
         var deletedBook = await Context.Books.FindAsync(bookId);
 
         // Assert
@@ -157,7 +167,7 @@ public class BookServiceTest : BaseTest
     }
 
     [Test]
-    public async Task GetBookByIsbn()
+    public async Task GetBookByIsbn_ShouldReturnBook()
     {
         // Arrange
         var bookId = Guid.NewGuid();
@@ -176,7 +186,7 @@ public class BookServiceTest : BaseTest
         });
 
         // Act
-        var result = await _service.GetByIsbnAsync(isbn);
+        var result = await _getBookByIsbnUseCase.GetByIsbnAsync(isbn);
 
         // Assert
         result.Should().NotBeNull();
@@ -184,15 +194,15 @@ public class BookServiceTest : BaseTest
     }
 
     [Test]
-    public async Task GetBooksByAuthor()
+    public async Task GetBooksByAuthor_ShouldReturnBooksByAuthor()
     {
         // Arrange
         var authorId = Guid.NewGuid();
         var author = CreateAuthor(authorId);
         var books = new List<Book>
         {
-            CreateBook(new Guid(), author),
-            CreateBook(new Guid(), author)
+            CreateBook(Guid.NewGuid(), author),
+            CreateBook(Guid.NewGuid(), author)
         };
 
         await Context.Books.AddRangeAsync(books);
@@ -202,7 +212,7 @@ public class BookServiceTest : BaseTest
             .Returns(books.Select(b => new BookDto { Id = b.Id, BookName = b.BookName, AuthorId = authorId }).ToList());
 
         // Act
-        var result = await _service.GetByAuthor(authorId);
+        var result = await _getBooksByAuthorUseCase.GetByAuthor(authorId);
 
         // Assert
         result.Should().NotBeNull();
@@ -220,10 +230,10 @@ public class BookServiceTest : BaseTest
             Birthday = DateTime.UtcNow
         };
     }
-        
+
     private Book CreateBook(Guid bookId, Author author)
     {
-        return new Book()
+        return new Book
         {
             Id = bookId,
             BookName = "Sample Book",

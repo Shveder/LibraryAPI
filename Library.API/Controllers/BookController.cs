@@ -3,13 +3,16 @@
 /// <summary>
 /// Controller responsible for managing book-related operations, including fetching books by ISBN, author, and with filters.
 /// </summary>
-/// <param name="bookService">Service handling book-related operations.</param>
 [Route("api/Book")]
 [ApiController]
-public class BookController (IBookService bookService)
-    : BaseController<IBookService, Book, BookDto>(bookService){
-    private readonly IBookService _bookService = bookService;
-
+public class BookController(IPostBookUseCase postUseCase,
+    IGetAllBooksUseCase getAllUseCase, IGetBookByIdUseCase getByIdUseCase,
+    IDeleteBookUseCase deleteUseCase, IPutBookUseCase putUseCase,
+    IGetBookByIsbnUseCase getBookByIsbnUseCase, IGetByAuthorUseCase getByAuthorUseCase,
+    IGetAllFilteredBooks getAllFilteredBooks)
+    : BaseController<IPostBookUseCase, IGetAllBooksUseCase, IGetBookByIdUseCase, IDeleteBookUseCase,
+        IPutBookUseCase, Book, BookDto>(postUseCase, getAllUseCase, getByIdUseCase, deleteUseCase, putUseCase)
+{
     /// <summary>
     /// Retrieves a book by its ISBN.
     /// </summary>
@@ -17,15 +20,13 @@ public class BookController (IBookService bookService)
     /// <returns>
     /// The book details corresponding to the provided ISBN.
     /// </returns>
-    [HttpGet]
-    [Route("GetBookByIsbn")]
+    [HttpGet("GetBookByIsbn")]
     [ProducesResponseType(typeof(ResponseDto<BookDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ResponseDto<object>), StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> GetByIsbnAsync(string isbn)
     {
-        var entity = await _bookService.GetByIsbnAsync(isbn);
-        
-        return Ok(new ResponseDto<BookDto>(CommonStrings.SuccessResult, data: entity));
+        var bookDto = await getBookByIsbnUseCase.GetByIsbnAsync(isbn);
+        return Ok(new ResponseDto<BookDto>(CommonStrings.SuccessResult, data: bookDto));
     }
 
     /// <summary>
@@ -35,18 +36,16 @@ public class BookController (IBookService bookService)
     /// <returns>
     /// A list of books written by the specified author.
     /// </returns>
-    [HttpGet]
-    [Route("GetByAuthor")]
+    [HttpGet("GetByAuthor")]
     [ProducesResponseType(typeof(ResponseDto<IEnumerable<BookDto>>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ResponseDto<object>), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ResponseDto<object>), StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> GetByAuthor(Guid authorId)
     {
-        var entity = await _bookService.GetByAuthor(authorId);
-        
-        return Ok(new ResponseDto<IEnumerable<BookDto>>(CommonStrings.SuccessResult, data: entity));
+        var bookDtos = await getByAuthorUseCase.GetByAuthor(authorId);
+        return Ok(new ResponseDto<IEnumerable<BookDto>>(CommonStrings.SuccessResult, data: bookDtos));
     }
-    
+
     /// <summary>
     /// Retrieves a list of books with filtering options applied.
     /// </summary>
@@ -54,13 +53,12 @@ public class BookController (IBookService bookService)
     /// <returns>
     /// A list of books and the total count based on the applied filters.
     /// </returns>
-    [HttpGet]
-    [Route("GetAllFiltered")]
+    [HttpGet("GetAllFiltered")]
     [ProducesResponseType(typeof(ResponseDto<object>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ResponseDto<object>), StatusCodes.Status500InternalServerError)]
-    public virtual async Task<IActionResult> GetFilteredAsync([FromQuery] FilterDto filter)
+    public async Task<IActionResult> GetFilteredAsync([FromQuery] FilterDto filter)
     {
-        var (books, totalCount) = await _bookService.GetAllFiltered(filter);
+        var (books, totalCount) = await getAllFilteredBooks.GetAllFiltered(filter);
         var response = new
         {
             Books = books,
@@ -68,5 +66,71 @@ public class BookController (IBookService bookService)
         };
 
         return Ok(new ResponseDto<object>(CommonStrings.SuccessResult, data: response));
+    }
+
+    /// <summary>
+    /// Retrieves a book by its ID.
+    /// </summary>
+    /// <param name="id">The unique identifier of the book.</param>
+    /// <returns>
+    /// The book details corresponding to the provided ID.
+    /// </returns>
+    [HttpGet("{id:guid}")]
+    [ProducesResponseType(typeof(ResponseDto<BookDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ResponseDto<object>), StatusCodes.Status500InternalServerError)]
+    public override async Task<IActionResult> GetByIdAsync(Guid id)
+    {
+        var bookDto = await getByIdUseCase.GetByIdAsync(id);
+        return Ok(new ResponseDto<BookDto>(CommonStrings.SuccessResult, data: bookDto));
+    }
+
+    /// <summary>
+    /// Creates a new book.
+    /// </summary>
+    /// <param name="dto">The DTO containing the information of the book to create.</param>
+    /// <returns>
+    /// The created book details.
+    /// </returns>
+    [HttpPost]
+    [ProducesResponseType(typeof(ResponseDto<BookDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ResponseDto<object>), StatusCodes.Status500InternalServerError)]
+    [ProducesResponseType(typeof(ResponseDto<object>), StatusCodes.Status400BadRequest)]
+    public override async Task<IActionResult> PostAsync([FromBody] BookDto dto)
+    {
+        var bookDto = await postUseCase.PostAsync(dto);
+        return Ok(new ResponseDto<BookDto>(CommonStrings.SuccessResultPost, data: bookDto));
+    }
+
+    /// <summary>
+    /// Updates an existing book.
+    /// </summary>
+    /// <param name="dto">The DTO containing the updated information of the book.</param>
+    /// <returns>
+    /// The updated book details.
+    /// </returns>
+    [HttpPut]
+    [ProducesResponseType(typeof(ResponseDto<BookDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ResponseDto<object>), StatusCodes.Status500InternalServerError)]
+    [ProducesResponseType(typeof(ResponseDto<object>), StatusCodes.Status400BadRequest)]
+    public override async Task<IActionResult> PutAsync([FromBody] BookDto dto)
+    {
+        var bookDto = await putUseCase.PutAsync(dto);
+        return Ok(new ResponseDto<BookDto>(CommonStrings.SuccessResultPut, data: bookDto));
+    }
+
+    /// <summary>
+    /// Deletes a book by its ID.
+    /// </summary>
+    /// <param name="id">The unique identifier of the book to delete.</param>
+    /// <returns>
+    /// A success message if the book is deleted.
+    /// </returns>
+    [HttpDelete("{id:guid}")]
+    [ProducesResponseType(typeof(ResponseDto<string>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ResponseDto<object>), StatusCodes.Status500InternalServerError)]
+    public override async Task<IActionResult> DeleteAsync(Guid id)
+    {
+        await deleteUseCase.DeleteByIdAsync(id);
+        return Ok(new ResponseDto<string>(CommonStrings.SuccessResultDelete));
     }
 }

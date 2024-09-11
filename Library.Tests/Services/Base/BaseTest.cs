@@ -1,4 +1,6 @@
-﻿namespace Library.Tests.Services.Base;
+﻿using Library.Application.DTO;
+
+namespace Library.Tests.Services.Base;
 
 public abstract class BaseTest
 {

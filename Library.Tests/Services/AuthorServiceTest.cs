@@ -1,25 +1,32 @@
 ﻿namespace Library.Tests.Services;
 
 [TestFixture]
-public class AuthorServiceTest : BaseTest
+public class AuthorUseCasesTests : BaseTest
 {
-    private IAuthorService _service;
+    private IGetAuthorByIdUseCase _getAuthorByIdUseCase;
+    private IPostAuthorUseCase _postAuthorUseCase;
+    private IGetAllAuthorsUseCase _getAllAuthorsUseCase;
+    private IPutAuthorUseCase _putAuthorUseCase;
+    private DeleteAuthorByIdUseCase _deleteAuthorUseCase;
     private Mock<IMapper> _mapperMock;
+    private DbRepository _repository;
 
     [SetUp]
     public new void Setup()
     {
         base.Setup();
-            
         _mapperMock = new Mock<IMapper>();
-            
-        _service = new AuthorService(
-            _mapperMock.Object,
-            new DbRepository(Context));
+        _repository = new DbRepository(Context);
+        
+        _getAuthorByIdUseCase = new GetAuthorByIdUseCase(_repository, _mapperMock.Object);
+        _postAuthorUseCase = new PostAuthorUseCase(_repository, _mapperMock.Object);
+        _getAllAuthorsUseCase = new GetAllAuthorsUseCase(_repository, _mapperMock.Object);
+        _putAuthorUseCase = new PutAuthorUseCase(_repository, _mapperMock.Object);
+        _deleteAuthorUseCase = new DeleteAuthorByIdUseCase(_repository, _mapperMock.Object);
     }
 
     [Test]
-    public async Task GetAuthorById()
+    public async Task GetAuthorById_ShouldReturnAuthor()
     {
         // Arrange
         var authorId = Guid.NewGuid();
@@ -35,7 +42,7 @@ public class AuthorServiceTest : BaseTest
         });
 
         // Act
-        var result = await _service.GetByIdAsync(authorId);
+        var result = await _getAuthorByIdUseCase.GetByIdAsync(authorId);
 
         // Assert
         result.Should().NotBeNull();
@@ -43,34 +50,43 @@ public class AuthorServiceTest : BaseTest
     }
 
     [Test]
-    public async Task PostAuthor()
+    public async Task PostAuthor_ShouldAddAuthor()
     {
         // Arrange
-        var authorId = Guid.NewGuid();
-        var author = CreateAuthor(authorId);
+        var authorDto = new AuthorDto
+        {
+            Id = Guid.NewGuid(),
+            Name = "John Doe"
+        };
+
+        var author = new Author
+        {
+            Id = authorDto.Id,
+            Name = authorDto.Name,
+            Surname = "Doe",
+            Country = "Belarus",
+            Birthday = DateTime.UtcNow
+        };
+
+        _mapperMock.Setup(m => m.Map<Author>(It.IsAny<AuthorDto>())).Returns(author);
 
         // Act
-        var result = await Context.Authors.AddAsync(author);
-        await Context.SaveChangesAsync();
-
-        _mapperMock.Setup(m => m.Map<AuthorDto>(It.IsAny<Author>())).Returns(new AuthorDto
-        {
-            Id = authorId,
-            Name = "John Doe"
-        });
+        await _postAuthorUseCase.PostAsync(authorDto);
 
         // Assert
-        result.Should().NotBeNull();
+        var addedAuthor = await Context.Authors.FindAsync(author.Id);
+        addedAuthor.Should().NotBeNull();
+        addedAuthor.Name.Should().Be(authorDto.Name);
     }
 
     [Test]
-    public async Task GetAllAuthors()
+    public async Task GetAllAuthors_ShouldReturnAllAuthors()
     {
         // Arrange
         var authors = new List<Author>
         {
-            CreateAuthor(new Guid()),
-            CreateAuthor(new Guid())
+            CreateAuthor(Guid.NewGuid()),
+            CreateAuthor(Guid.NewGuid())
         };
 
         await Context.Authors.AddRangeAsync(authors);
@@ -80,7 +96,7 @@ public class AuthorServiceTest : BaseTest
             .Returns(authors.Select(a => new AuthorDto { Id = a.Id, Name = a.Name }).ToList());
 
         // Act
-        var result = await _service.GetAllAsync();
+        var result = await _getAllAuthorsUseCase.GetAllAsync();
 
         // Assert
         result.Should().NotBeNull();
@@ -88,7 +104,7 @@ public class AuthorServiceTest : BaseTest
     }
 
     [Test]
-    public async Task PutAuthor()
+    public async Task PutAuthor_ShouldUpdateAuthor()
     {
         // Arrange
         var authorId = Guid.NewGuid();
@@ -108,12 +124,12 @@ public class AuthorServiceTest : BaseTest
             Name = "John Updated",
             Surname = "Doe",
             Country = "Belarus",
-            Birthday = DateTime.UtcNow,
+            Birthday = author.Birthday,
             DateUpdated = DateTime.UtcNow
         });
 
         // Act
-        var result = await _service.PutAsync(updatedDto);
+        var result = await _putAuthorUseCase.PutAsync(updatedDto);
 
         // Assert
         result.Should().NotBeNull();
@@ -121,26 +137,27 @@ public class AuthorServiceTest : BaseTest
     }
 
     [Test]
-    public async Task DeleteAuthor()
+    public async Task DeleteAuthor_ShouldRemoveAuthor()
     {
         // Arrange
         var authorId = Guid.NewGuid();
         var author = CreateAuthor(authorId);
-            
+
         await Context.Authors.AddAsync(author);
         await Context.SaveChangesAsync();
 
         // Act
-        await _service.DeleteByIdAsync(authorId);
+        await _deleteAuthorUseCase.DeleteByIdAsync(authorId);
         var deletedAuthor = await Context.Authors.FindAsync(authorId);
 
         // Assert
         deletedAuthor.Should().BeNull();
     }
 
-    public Author CreateAuthor(Guid authorId)
+    private Author CreateAuthor(Guid authorId)
     {
-        return new Author(){
+        return new Author
+        {
             Id = authorId,
             Name = "John Doe",
             Surname = "Doe",

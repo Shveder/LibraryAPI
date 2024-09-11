@@ -3,10 +3,9 @@
 /// <summary>
 /// Controller responsible for user authorization, including login and registration functionalities.
 /// </summary>
-/// <param name="authorizationService">Service handling authorization logic such as generating tokens and user registration.</param>
 [ApiController]
 [Route("[controller]")]
-public class AuthorizationController(IAuthorizationService authorizationService) : ControllerBase
+public class AuthorizationController(ILoginUseCase loginUseCase, IRegisterUseCase registerUseCase) : ControllerBase
 {
     /// <summary>
     /// Logs in a user by validating credentials and generating a JWT token.
@@ -16,13 +15,12 @@ public class AuthorizationController(IAuthorizationService authorizationService)
     /// A JWT token if the login is successful.
     /// </returns>
     [HttpPost("Login")]
-    [ProducesResponseType(typeof(ResponseDto<object>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ResponseDto<string>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ResponseDto<object>), StatusCodes.Status500InternalServerError)]
     [ProducesResponseType(typeof(ResponseDto<object>), StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> Login([FromBody] LoginRequest request)
     {
-        var token = await authorizationService.GenerateTokenAsync(request.Login, request.Password);
-        
+        var token = await loginUseCase.GenerateTokenAsync(request.Login, request.Password);
         return Ok(token);
     }
 
@@ -34,13 +32,12 @@ public class AuthorizationController(IAuthorizationService authorizationService)
     /// A success message if registration is successful.
     /// </returns>
     [HttpPost("Register")]
-    [ProducesResponseType(typeof(ResponseDto<object>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ResponseDto<string>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ResponseDto<object>), StatusCodes.Status500InternalServerError)]
     [ProducesResponseType(typeof(ResponseDto<object>), StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> Register([FromBody] RegisterUserRequest request)
     {
-        await authorizationService.Register(request);
-        
+        await registerUseCase.Register(request);
         return Ok("Registration successful");
     }
 }

@@ -1,9 +1,5 @@
-﻿using System.Linq.Expressions;
-using Library.Core.Models.Interfaces;
+﻿namespace Library.Infrastructure.Repository;
 
-namespace Library.Infrastructure.Repository;
-
-[AutoInterface]
 public class DbRepository(DataContext context) : IDbRepository
 {
     public IQueryable<T> Get<T>() where T : class, IHasId

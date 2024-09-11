@@ -3,14 +3,14 @@
 /// <summary>
 /// Controller responsible for managing the relationship between users and their books.
 /// </summary>
-/// <param name="userBookService">Service that handles operations related to user-book associations.</param>
 [Route("api/UserBook")]
 [ApiController]
-public class UserBookController(IUserBookService userBookService)
-    : BaseController<IUserBookService, UserBook, UserBookDto>(userBookService)
+public class UserBookController(IPostUserBookUseCase postUseCase,
+    IGetAllUserBooksUseCase getAllUseCase, IGetUserBookByIdUseCase getByIdUseCase,
+    IDeleteUserBookUseCase deleteUseCase, IPutUserBookUseCase putUseCase, IGetBookByUserUseCase getByUserUseCase)
+    : BaseController<IPostUserBookUseCase, IGetAllUserBooksUseCase, IGetUserBookByIdUseCase, IDeleteUserBookUseCase,
+        IPutUserBookUseCase, UserBook, UserBookDto>(postUseCase, getAllUseCase, getByIdUseCase, deleteUseCase, putUseCase)
 {
-    private readonly IUserBookService _userBookService = userBookService;
-
     /// <summary>
     /// Retrieves the list of books associated with a specific user.
     /// </summary>
@@ -24,7 +24,7 @@ public class UserBookController(IUserBookService userBookService)
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> GetBooksByUserId(Guid userId)
     {
-        var bookList = await _userBookService.GetBooksByUserId(userId);
+        var bookList = await getByUserUseCase.GetBooksByUserId(userId);
         
         return Ok(bookList);
     }
@@ -42,7 +42,7 @@ public class UserBookController(IUserBookService userBookService)
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public override async Task<IActionResult> PostAsync(UserBookDto dto)
     {
-        var entity = await _userBookService.PostAsync(dto);
+        var entity = await postUseCase.PostAsync(dto);
         
         return Ok(new ResponseDto<UserBookDto>(CommonStrings.SuccessResultPost, data: entity));
     }

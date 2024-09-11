@@ -57,9 +57,15 @@ builder.Services.AddAutoMapper(typeof(UserProfile));
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-builder.Services.AddScoped<IAuthorizationService, AuthorizationService>();
-builder.Services.AddScoped<IPhotoService, PhotoService>();
 builder.Services.AddScoped<IDbRepository, DbRepository>();
+builder.Services.AddScoped<ILoginUseCase, LoginUseCase>();
+builder.Services.AddScoped<IRegisterUseCase, RegisterUseCase>();
+builder.Services.AddScoped<IGetAllFilteredBooks, GetAllFilteredBooks>();
+builder.Services.AddScoped<IGetBookByIsbnUseCase, GetBookByIsbnUseCase>();
+builder.Services.AddScoped<IGetByAuthorUseCase, GetByAuthorUseCase>();
+builder.Services.AddScoped<IAddPhotoUseCase, AddPhotoUseCase>();
+builder.Services.AddScoped<IGetPhotoUseCase, GetPhotoUseCase>();
+builder.Services.AddScoped<IGetBookByUserUseCase, GetBookByUserUseCase>();
 
 // Custom Services Configuration
 ServiceConfig.RegisterService(builder.Services);
