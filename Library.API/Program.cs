@@ -60,17 +60,7 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddScoped<IDbRepository, DbRepository>();
 builder.Services.AddScoped<IPhotoService, PhotoService>();
 
-var useCaseTypes = Assembly.GetAssembly(typeof(LoginUseCase))
-    ?.GetTypes()
-    .Where(t => t.Name.EndsWith("UseCase") && t.IsClass && !t.IsAbstract);
-
-if (useCaseTypes != null)
-{
-    foreach (var useCaseType in useCaseTypes)
-    {
-        builder.Services.AddScoped(useCaseType);
-    }
-}
+RegisterUseCases(builder.Services);
 
 #endregion
 
@@ -151,4 +141,19 @@ static async Task SeedDataAsync(DataContext context)
         Password = "0185b159c6bddbd7ec53cc96b3589f012e939d91f9c3476ac3f43bbd6ef46dce",
         Salt = "sZdDpAEbpBCPyztnn4BqcQ==", Role = "admin"});
     await context.SaveChangesAsync();
+}
+
+static void RegisterUseCases(IServiceCollection services)
+{
+    var useCaseTypes = Assembly.GetAssembly(typeof(LoginUseCase))
+        ?.GetTypes()
+        .Where(t => t.Name.EndsWith("UseCase") && t.IsClass && !t.IsAbstract);
+
+    if (useCaseTypes != null)
+    {
+        foreach (var useCaseType in useCaseTypes)
+        {
+            services.AddScoped(useCaseType);
+        }
+    }
 }
