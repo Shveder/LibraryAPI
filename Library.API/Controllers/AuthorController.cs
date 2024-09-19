@@ -2,7 +2,7 @@
 
 /// <summary>
 /// Controller for managing authors.
-/// Inherits common CRUD operations from the BaseController.
+/// Provides common CRUD operations for Author entity.
 /// </summary>
 [Route("api/Author")]
 [ApiController]
