@@ -1,7 +1,6 @@
 ﻿namespace Library.Application.UseCases.AuthorizationUseCases;
 
-[AutoInterface]
-public class RegisterUseCase(IMapper mapper, IDbRepository repository, ILogger<RegisterUseCase> logger) : BaseAuthorization, IRegisterUseCase
+public class RegisterUseCase(IMapper mapper, IDbRepository repository, ILogger<RegisterUseCase> logger)
 {
     public async Task Register(RegisterUserRequest request)
     {
@@ -36,5 +35,27 @@ public class RegisterUseCase(IMapper mapper, IDbRepository repository, ILogger<R
         var user = await repository.Get<User>(model => model.Login == login).FirstOrDefaultAsync();
         
         return user != null;
+    }
+
+    private string GetSalt()
+    {
+        byte[] salt = new byte[16];
+        var rng = new RNGCryptoServiceProvider();
+        rng.GetBytes(salt);
+        
+        return Convert.ToBase64String(salt);
+    }
+
+    private string Hash(string inputString)
+    {
+        using (var sha256 = SHA256.Create())
+        {
+            byte[] bytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(inputString));
+            StringBuilder sb = new StringBuilder();
+            foreach (byte b in bytes)
+                sb.Append(b.ToString("x2"));
+            
+            return sb.ToString();
+        }
     }
 }

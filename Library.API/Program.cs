@@ -58,17 +58,19 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 builder.Services.AddScoped<IDbRepository, DbRepository>();
-builder.Services.AddScoped<ILoginUseCase, LoginUseCase>();
-builder.Services.AddScoped<IRegisterUseCase, RegisterUseCase>();
-builder.Services.AddScoped<IGetAllFilteredBooks, GetAllFilteredBooks>();
-builder.Services.AddScoped<IGetBookByIsbnUseCase, GetBookByIsbnUseCase>();
-builder.Services.AddScoped<IGetByAuthorUseCase, GetByAuthorUseCase>();
-builder.Services.AddScoped<IAddPhotoUseCase, AddPhotoUseCase>();
-builder.Services.AddScoped<IGetPhotoUseCase, GetPhotoUseCase>();
-builder.Services.AddScoped<IGetBookByUserUseCase, GetBookByUserUseCase>();
+builder.Services.AddScoped<IPhotoService, PhotoService>();
 
-// Custom Services Configuration
-ServiceConfig.RegisterService(builder.Services);
+var useCaseTypes = Assembly.GetAssembly(typeof(LoginUseCase))
+    ?.GetTypes()
+    .Where(t => t.Name.EndsWith("UseCase") && t.IsClass && !t.IsAbstract);
+
+if (useCaseTypes != null)
+{
+    foreach (var useCaseType in useCaseTypes)
+    {
+        builder.Services.AddScoped(useCaseType);
+    }
+}
 
 #endregion
 

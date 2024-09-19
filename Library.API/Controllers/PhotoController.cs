@@ -3,11 +3,10 @@
 /// <summary>
 /// Controller responsible for handling photo uploads and retrievals related to books.
 /// </summary>
-///  <param name="getPhotoUseCase">Use case to get photo from folder.</param>
-///  <param name="addPhotoUseCase">Use case to add photo to folder.</param>
+///  <param name="photoService">Services provides photo handling.</param>
 [ApiController]
 [Route("[controller]")]
-public class PhotoController(IAddPhotoUseCase addPhotoUseCase, IGetPhotoUseCase getPhotoUseCase) : ControllerBase
+public class PhotoController(IPhotoService photoService) : ControllerBase
 {
     /// <summary>
     /// Handles the file upload for a specific book.
@@ -22,7 +21,7 @@ public class PhotoController(IAddPhotoUseCase addPhotoUseCase, IGetPhotoUseCase 
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> HandleFileUpload([FromRoute] Guid bookId, IFormFile file)
     {
-        await addPhotoUseCase.SavePhotoAsync(bookId, file.OpenReadStream());
+        await photoService.SavePhotoAsync(bookId, file.OpenReadStream());
         
         return Ok("Uploaded successfully");
     }
@@ -39,7 +38,7 @@ public class PhotoController(IAddPhotoUseCase addPhotoUseCase, IGetPhotoUseCase 
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> GetPhoto([FromRoute] Guid bookId)
     {
-        var photoStream = await getPhotoUseCase.GetPhotoAsync(bookId);
+        var photoStream = await photoService.GetPhotoAsync(bookId);
         
         return File(photoStream, "image/jpeg");
     }

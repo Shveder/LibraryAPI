@@ -1,5 +1,14 @@
 ﻿namespace Library.Application.UseCases.AuthorUseCases;
 
-[AutoInterface(Inheritance = [typeof(IDeleteByIdUseCase<AuthorDto, Author>)])]
-public class DeleteAuthorByIdUseCase(IDbRepository repository, IMapper mapper)
-    : DeleteByIdUseCase<AuthorDto, Author>(repository, mapper), IDeleteAuthorByIdUseCase;
+public class DeleteAuthorByIdUseCase(IDbRepository repository)
+{
+    public virtual async Task DeleteByIdAsync(Guid id)
+    {
+        var entity = await repository.Get<Author>(e => e.Id == id).FirstOrDefaultAsync();
+        if (entity is null)
+            throw new EntityNotFoundException($"{typeof(Author).Name} {CommonStrings.NotFoundResult}");
+
+        await repository.Delete(entity);
+        await repository.SaveChangesAsync();
+    }
+}

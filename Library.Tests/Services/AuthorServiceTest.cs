@@ -3,10 +3,9 @@
 [TestFixture]
 public class AuthorUseCasesTests : BaseTest
 {
-    private IGetAuthorByIdUseCase _getAuthorByIdUseCase;
-    private IPostAuthorUseCase _postAuthorUseCase;
-    private IGetAllAuthorsUseCase _getAllAuthorsUseCase;
-    private IPutAuthorUseCase _putAuthorUseCase;
+    private GetAuthorByIdUseCase _getAuthorByIdUseCase;
+    private PostAuthorUseCase _postAuthorUseCase;
+    private GetAllAuthorsUseCase _getAllAuthorsUseCase;
     private DeleteAuthorByIdUseCase _deleteAuthorUseCase;
     private Mock<IMapper> _mapperMock;
     private DbRepository _repository;
@@ -21,8 +20,7 @@ public class AuthorUseCasesTests : BaseTest
         _getAuthorByIdUseCase = new GetAuthorByIdUseCase(_repository, _mapperMock.Object);
         _postAuthorUseCase = new PostAuthorUseCase(_repository, _mapperMock.Object);
         _getAllAuthorsUseCase = new GetAllAuthorsUseCase(_repository, _mapperMock.Object);
-        _putAuthorUseCase = new PutAuthorUseCase(_repository, _mapperMock.Object);
-        _deleteAuthorUseCase = new DeleteAuthorByIdUseCase(_repository, _mapperMock.Object);
+        _deleteAuthorUseCase = new DeleteAuthorByIdUseCase(_repository);
     }
 
     [Test]
@@ -101,39 +99,6 @@ public class AuthorUseCasesTests : BaseTest
         // Assert
         result.Should().NotBeNull();
         result.Count().Should().Be(authors.Count);
-    }
-
-    [Test]
-    public async Task PutAuthor_ShouldUpdateAuthor()
-    {
-        // Arrange
-        var authorId = Guid.NewGuid();
-        var author = CreateAuthor(authorId);
-
-        await Context.Authors.AddAsync(author);
-        await Context.SaveChangesAsync();
-
-        var updatedDto = new AuthorDto
-        {
-            Id = authorId,
-            Name = "John Updated"
-        };
-
-        _mapperMock.Setup(m => m.Map<Author>(It.IsAny<AuthorDto>())).Returns(new Author
-        {
-            Name = "John Updated",
-            Surname = "Doe",
-            Country = "Belarus",
-            Birthday = author.Birthday,
-            DateUpdated = DateTime.UtcNow
-        });
-
-        // Act
-        var result = await _putAuthorUseCase.PutAsync(updatedDto);
-
-        // Assert
-        result.Should().NotBeNull();
-        result.Name.Should().Be("John Updated");
     }
 
     [Test]

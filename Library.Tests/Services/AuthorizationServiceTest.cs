@@ -3,8 +3,8 @@
 [TestFixture]
 public class AuthorizationUseCasesTests : BaseTest
 {
-    private ILoginUseCase _loginUseCase;
-    private IRegisterUseCase _registerUseCase;
+    private LoginUseCase _loginUseCase;
+    private RegisterUseCase _registerUseCase;
     private Mock<IConfiguration> _configurationMock;
     private Mock<ILogger<RegisterUseCase>> _registerLoggerMock;
     private DbRepository _repository;

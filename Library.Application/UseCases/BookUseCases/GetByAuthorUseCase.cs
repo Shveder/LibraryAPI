@@ -1,7 +1,6 @@
 ﻿namespace Library.Application.UseCases.BookUseCases;
 
-[AutoInterface]
-public class GetByAuthorUseCase(IDbRepository repository, IMapper mapper) : IGetByAuthorUseCase
+public class GetByAuthorUseCase(IDbRepository repository, IMapper mapper)
 {
     public async Task<IEnumerable<BookDto>> GetByAuthor(Guid authorId)
     {

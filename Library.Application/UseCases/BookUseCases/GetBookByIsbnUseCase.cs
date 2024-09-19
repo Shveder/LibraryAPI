@@ -1,7 +1,6 @@
 ﻿namespace Library.Application.UseCases.BookUseCases;
 
-[AutoInterface]
-public class GetBookByIsbnUseCase(IDbRepository repository, IMapper mapper) : IGetBookByIsbnUseCase
+public class GetBookByIsbnUseCase(IDbRepository repository, IMapper mapper)
 {
     public async Task<BookDto> GetByIsbnAsync(string isbn)
     {

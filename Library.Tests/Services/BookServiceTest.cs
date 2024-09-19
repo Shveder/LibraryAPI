@@ -3,13 +3,13 @@
 [TestFixture]
 public class BookUseCasesTests : BaseTest
 {
-    private IGetBookByIdUseCase _getBookByIdUseCase;
-    private IPostBookUseCase _postBookUseCase;
-    private IGetAllBooksUseCase _getAllBooksUseCase;
-    private IPutBookUseCase _putBookUseCase;
-    private IDeleteBookUseCase _deleteBookUseCase;
-    private IGetBookByIsbnUseCase _getBookByIsbnUseCase;
-    private IGetByAuthorUseCase _getBooksByAuthorUseCase;
+    private GetBookByIdUseCase _getBookByIdUseCase;
+    private PostBookUseCase _postBookUseCase;
+    private GetAllBooksUseCase _getAllBooksUseCase;
+    private PutBookUseCase _putBookUseCase;
+    private DeleteBookUseCase _deleteBookUseCase;
+    private GetBookByIsbnUseCase _getBookByIsbnUseCase;
+    private GetByAuthorUseCase _getBooksByAuthorUseCase;
     private Mock<IMapper> _mapperMock;
     private DbRepository _repository;
 
@@ -24,7 +24,7 @@ public class BookUseCasesTests : BaseTest
         _postBookUseCase = new PostBookUseCase(_repository, _mapperMock.Object);
         _getAllBooksUseCase = new GetAllBooksUseCase(_repository, _mapperMock.Object);
         _putBookUseCase = new PutBookUseCase(_repository, _mapperMock.Object);
-        _deleteBookUseCase = new DeleteBookUseCase(_repository, _mapperMock.Object);
+        _deleteBookUseCase = new DeleteBookUseCase(_repository);
         _getBookByIsbnUseCase = new GetBookByIsbnUseCase(_repository, _mapperMock.Object);
         _getBooksByAuthorUseCase = new GetByAuthorUseCase(_repository, _mapperMock.Object);
     }

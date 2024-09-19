@@ -1,5 +1,15 @@
 ﻿namespace Library.Application.UseCases.UserUseCases;
 
-[AutoInterface(Inheritance = [typeof(IGetByIdUseCase<UserDto, User>)])]
 public class GetUserByIdUseCase(IDbRepository repository, IMapper mapper)
-    : GetByIdUseCase<UserDto, User>(repository, mapper), IGetUserByIdUseCase;
+{
+    public virtual async Task<UserDto> GetByIdAsync(Guid id)
+    {
+        var entity = await repository.Get<User>(e => e.Id == id).FirstOrDefaultAsync();
+        if (entity is null)
+            throw new EntityNotFoundException(CommonStrings.NotFoundResult);
+
+        var dto = mapper.Map<UserDto>(entity);
+        
+        return dto;
+    }
+}

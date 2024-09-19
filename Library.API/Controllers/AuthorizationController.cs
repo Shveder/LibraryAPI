@@ -5,7 +5,7 @@
 /// </summary>
 [ApiController]
 [Route("[controller]")]
-public class AuthorizationController(ILoginUseCase loginUseCase, IRegisterUseCase registerUseCase) : ControllerBase
+public class AuthorizationController(LoginUseCase loginUseCase, RegisterUseCase registerUseCase) : ControllerBase
 {
     /// <summary>
     /// Logs in a user by validating credentials and generating a JWT token.
@@ -21,6 +21,7 @@ public class AuthorizationController(ILoginUseCase loginUseCase, IRegisterUseCas
     public async Task<IActionResult> Login([FromBody] LoginRequest request)
     {
         var token = await loginUseCase.GenerateTokenAsync(request.Login, request.Password);
+        
         return Ok(token);
     }
 
@@ -38,6 +39,7 @@ public class AuthorizationController(ILoginUseCase loginUseCase, IRegisterUseCas
     public async Task<IActionResult> Register([FromBody] RegisterUserRequest request)
     {
         await registerUseCase.Register(request);
+        
         return Ok("Registration successful");
     }
 }

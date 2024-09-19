@@ -3,12 +3,11 @@
 [TestFixture]
 public class UserBookServiceTest : BaseTest
 {
-    private IDeleteUserBookUseCase _deleteUserBook;
-    private IGetAllUserBooksUseCase _getAllUserBooks;
-    private IGetUserBookByIdUseCase _getUserBookById;
-    private IGetBookByUserUseCase _getBookByUser;
-    private IPostUserBookUseCase _postUserBook;
-    private IPutUserBookUseCase _putUserBook;
+    private DeleteUserBookUseCase _deleteUserBook;
+    private GetAllUserBooksUseCase _getAllUserBooks;
+    private GetUserBookByIdUseCase _getUserBookById;
+    private GetBookByUserUseCase _getBookByUser;
+    private PostUserBookUseCase _postUserBook;
     private Mock<IMapper> _mapperMock;
     private DbRepository _repository;
     
@@ -21,9 +20,7 @@ public class UserBookServiceTest : BaseTest
         _mapperMock = new Mock<IMapper>();
         _repository = new DbRepository(Context);
 
-        _deleteUserBook = new DeleteUserBookUseCase(
-            _repository,
-            _mapperMock.Object);
+        _deleteUserBook = new DeleteUserBookUseCase(_repository);
         _getAllUserBooks = new GetAllUserBooksUseCase(
             _repository,
             _mapperMock.Object);
@@ -33,9 +30,6 @@ public class UserBookServiceTest : BaseTest
         _getBookByUser = new GetBookByUserUseCase(
             _repository);
         _postUserBook = new PostUserBookUseCase(
-            _repository,
-            _mapperMock.Object);
-        _putUserBook = new PutUserBookUseCase(
             _repository,
             _mapperMock.Object);
     }
@@ -140,44 +134,7 @@ public class UserBookServiceTest : BaseTest
         // Assert
         result.Should().NotBeNull();
     }
-
-    [Test]
-    public async Task PutUserBook()
-    {
-        // Arrange
-        var author = CreateAuthor(new Guid());
-        var book = CreateBook(Guid.NewGuid(), author);
-        var user = CreateUser(new Guid());
-            
-        await Context.Users.AddAsync(user);
-        await Context.Authors.AddAsync(author);
-        await Context.Books.AddAsync(book);
-            
-        var userBook = CreateUserBook(new Guid(), user, book);
-
-        await Context.UserBooks.AddAsync(userBook);
-        await Context.SaveChangesAsync();
-
-        var date = DateTime.UtcNow.AddHours(12);
-        var updatedDto = new UserBookDto()
-        {
-            Id = userBook.Id,
-            DateReturn = date
-        };
-
-        _mapperMock.Setup(m => m.Map<UserBook>(It.IsAny<UserBookDto>())).Returns(new UserBook
-        {
-            DateReturn = date
-        });
-
-        // Act
-        var result = await _putUserBook.PutAsync(updatedDto);
-
-        // Assert
-        result.Should().NotBeNull();
-        result.DateReturn.Should().Be(date);
-    }
-
+    
     [Test]
     public async Task DeleteUserBook()
     {

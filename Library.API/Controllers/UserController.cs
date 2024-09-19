@@ -5,10 +5,10 @@
 /// </summary>
 [Route("api/User")]
 [ApiController]
-public class UserController(IGetUserByIdUseCase getUserByIdUseCase) : ControllerBase
+public class UserController(GetUserByIdUseCase getUserByIdUseCase) : ControllerBase
 {
     /// <summary>
-    /// Retrieves an user by its ID.
+    /// Retrieves a user by its ID.
     /// </summary>
     /// <param name="id">The unique identifier of the user to retrieve.</param>
     /// <returns>An IActionResult containing the requested user.</returns>

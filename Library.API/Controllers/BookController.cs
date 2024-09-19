@@ -5,13 +5,12 @@
 /// </summary>
 [Route("api/Book")]
 [ApiController]
-public class BookController(IPostBookUseCase postUseCase,
-    IGetAllBooksUseCase getAllUseCase, IGetBookByIdUseCase getByIdUseCase,
-    IDeleteBookUseCase deleteUseCase, IPutBookUseCase putUseCase,
-    IGetBookByIsbnUseCase getBookByIsbnUseCase, IGetByAuthorUseCase getByAuthorUseCase,
-    IGetAllFilteredBooks getAllFilteredBooks)
-    : BaseController<IPostBookUseCase, IGetAllBooksUseCase, IGetBookByIdUseCase, IDeleteBookUseCase,
-        IPutBookUseCase, Book, BookDto>(postUseCase, getAllUseCase, getByIdUseCase, deleteUseCase, putUseCase)
+public class BookController(PostBookUseCase postUseCase,
+    GetAllBooksUseCase getAllUseCase, GetBookByIdUseCase getByIdUseCase,
+    DeleteBookUseCase deleteUseCase, PutBookUseCase putUseCase,
+    GetBookByIsbnUseCase getBookByIsbnUseCase, GetByAuthorUseCase getByAuthorUseCase,
+    GetAllFilteredBooksUseCase getAllFilteredBooksUseCase)
+    : ControllerBase
 {
     /// <summary>
     /// Retrieves a book by its ISBN.
@@ -26,6 +25,7 @@ public class BookController(IPostBookUseCase postUseCase,
     public async Task<IActionResult> GetByIsbnAsync(string isbn)
     {
         var bookDto = await getBookByIsbnUseCase.GetByIsbnAsync(isbn);
+        
         return Ok(new ResponseDto<BookDto>(CommonStrings.SuccessResult, data: bookDto));
     }
 
@@ -43,6 +43,7 @@ public class BookController(IPostBookUseCase postUseCase,
     public async Task<IActionResult> GetByAuthor(Guid authorId)
     {
         var bookDtos = await getByAuthorUseCase.GetByAuthor(authorId);
+        
         return Ok(new ResponseDto<IEnumerable<BookDto>>(CommonStrings.SuccessResult, data: bookDtos));
     }
 
@@ -58,7 +59,7 @@ public class BookController(IPostBookUseCase postUseCase,
     [ProducesResponseType(typeof(ResponseDto<object>), StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> GetFilteredAsync([FromQuery] FilterDto filter)
     {
-        var (books, totalCount) = await getAllFilteredBooks.GetAllFiltered(filter);
+        var (books, totalCount) = await getAllFilteredBooksUseCase.GetAllFiltered(filter);
         var response = new
         {
             Books = books,
@@ -78,9 +79,10 @@ public class BookController(IPostBookUseCase postUseCase,
     [HttpGet("{id:guid}")]
     [ProducesResponseType(typeof(ResponseDto<BookDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ResponseDto<object>), StatusCodes.Status500InternalServerError)]
-    public override async Task<IActionResult> GetByIdAsync(Guid id)
+    public async Task<IActionResult> GetByIdAsync(Guid id)
     {
         var bookDto = await getByIdUseCase.GetByIdAsync(id);
+        
         return Ok(new ResponseDto<BookDto>(CommonStrings.SuccessResult, data: bookDto));
     }
 
@@ -95,9 +97,10 @@ public class BookController(IPostBookUseCase postUseCase,
     [ProducesResponseType(typeof(ResponseDto<BookDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ResponseDto<object>), StatusCodes.Status500InternalServerError)]
     [ProducesResponseType(typeof(ResponseDto<object>), StatusCodes.Status400BadRequest)]
-    public override async Task<IActionResult> PostAsync([FromBody] BookDto dto)
+    public async Task<IActionResult> PostAsync([FromBody] BookDto dto)
     {
         var bookDto = await postUseCase.PostAsync(dto);
+        
         return Ok(new ResponseDto<BookDto>(CommonStrings.SuccessResultPost, data: bookDto));
     }
 
@@ -112,9 +115,10 @@ public class BookController(IPostBookUseCase postUseCase,
     [ProducesResponseType(typeof(ResponseDto<BookDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ResponseDto<object>), StatusCodes.Status500InternalServerError)]
     [ProducesResponseType(typeof(ResponseDto<object>), StatusCodes.Status400BadRequest)]
-    public override async Task<IActionResult> PutAsync([FromBody] BookDto dto)
+    public async Task<IActionResult> PutAsync([FromBody] BookDto dto)
     {
         var bookDto = await putUseCase.PutAsync(dto);
+        
         return Ok(new ResponseDto<BookDto>(CommonStrings.SuccessResultPut, data: bookDto));
     }
 
@@ -128,9 +132,25 @@ public class BookController(IPostBookUseCase postUseCase,
     [HttpDelete("{id:guid}")]
     [ProducesResponseType(typeof(ResponseDto<string>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ResponseDto<object>), StatusCodes.Status500InternalServerError)]
-    public override async Task<IActionResult> DeleteAsync(Guid id)
+    public async Task<IActionResult> DeleteAsync(Guid id)
     {
         await deleteUseCase.DeleteByIdAsync(id);
+        
         return Ok(new ResponseDto<string>(CommonStrings.SuccessResultDelete));
+    }
+    
+    /// <summary>
+    /// Retrieves all books.
+    /// </summary>
+    /// <returns>An IActionResult containing the list of all authors.</returns>
+    [HttpGet("GetAll")]
+    [Authorize]
+    [ProducesResponseType(typeof(ResponseDto<object>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ResponseDto<object>), StatusCodes.Status500InternalServerError)]
+    public virtual async Task<IActionResult> GetAllAsync()
+    {
+        var entity = await getAllUseCase.GetAllAsync();
+        
+        return Ok(new ResponseDto<IEnumerable<BookDto>>(CommonStrings.SuccessResult, data: entity));
     }
 }

@@ -1,7 +1,6 @@
 ﻿namespace Library.Application.UseCases.UserBookUseCases;
 
-[AutoInterface]
-public class GetBookByUserUseCase(IDbRepository repository) : IGetBookByUserUseCase
+public class GetBookByUserUseCase(IDbRepository repository)
 {
     public async Task<IEnumerable<UserBook>> GetBooksByUserId(Guid userId)
     {

@@ -1,8 +1,6 @@
 ﻿namespace Library.Application.UseCases.AuthorizationUseCases;
 
-[AutoInterface]
-public class LoginUseCase(IConfiguration configuration, 
-    IDbRepository repository) : BaseAuthorization, ILoginUseCase
+public class LoginUseCase(IConfiguration configuration, IDbRepository repository)
 {
     public async Task<string> GenerateTokenAsync(string login, string password)
     {
@@ -36,5 +34,18 @@ public class LoginUseCase(IConfiguration configuration,
             claims,
             expires: DateTime.UtcNow.AddDays(1),
             signingCredentials: signIn));
+    }
+    
+    private string Hash(string inputString)
+    {
+        using (var sha256 = SHA256.Create())
+        {
+            byte[] bytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(inputString));
+            StringBuilder sb = new StringBuilder();
+            foreach (byte b in bytes)
+                sb.Append(b.ToString("x2"));
+            
+            return sb.ToString();
+        }
     }
 }

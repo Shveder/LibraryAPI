@@ -1,7 +1,6 @@
 ﻿namespace Library.Application.UseCases.BookUseCases;
 
-[AutoInterface]
-public class GetAllFilteredBooks(IDbRepository repository, IMapper mapper) : IGetAllFilteredBooks
+public class GetAllFilteredBooksUseCase(IDbRepository repository, IMapper mapper)
 {
     public virtual async Task<(IEnumerable<BookDto> Books, int TotalCount)> GetAllFiltered(FilterDto filter)
     {

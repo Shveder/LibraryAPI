@@ -3,8 +3,7 @@
 [TestFixture]
 public class PhotoUseCasesTests
 {
-    private IAddPhotoUseCase _savePhotoUseCase;
-    private IGetPhotoUseCase _getPhotoUseCase;
+    private IPhotoService _photoService;
     private string _testRootLocation;
 
     [SetUp]
@@ -13,12 +12,11 @@ public class PhotoUseCasesTests
         _testRootLocation = Path.Combine(Directory.GetCurrentDirectory(), "uploads");
         Directory.CreateDirectory(Path.Combine(_testRootLocation, "books"));
 
-        _savePhotoUseCase = new AddPhotoUseCase();
-        _getPhotoUseCase = new GetPhotoUseCase();
+        _photoService = new PhotoService();
         
-        typeof(AddPhotoUseCase)
+        typeof(PhotoService)
             .GetField("_rootLocation", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)
-            ?.SetValue(_savePhotoUseCase, _testRootLocation);
+            ?.SetValue(_photoService, _testRootLocation);
     }
 
     [TearDown]
@@ -39,7 +37,7 @@ public class PhotoUseCasesTests
         using var fileStream = new MemoryStream(fileContent);
 
         // Act
-        await _savePhotoUseCase.SavePhotoAsync(bookId, fileStream);
+        await _photoService.SavePhotoAsync(bookId, fileStream);
 
         // Assert
         var savedFilePath = Path.Combine(_testRootLocation, "books", bookId.ToString(), $"{bookId}.jpg");
@@ -63,7 +61,7 @@ public class PhotoUseCasesTests
         await File.WriteAllBytesAsync(filePath, content);
 
         // Act
-        await using var resultStream = await _getPhotoUseCase.GetPhotoAsync(bookId);
+        await using var resultStream = await _photoService.GetPhotoAsync(bookId);
 
         // Assert
         resultStream.Should().NotBeNull();

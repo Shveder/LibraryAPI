@@ -5,11 +5,9 @@
 /// </summary>
 [Route("api/UserBook")]
 [ApiController]
-public class UserBookController(IPostUserBookUseCase postUseCase,
-    IGetAllUserBooksUseCase getAllUseCase, IGetUserBookByIdUseCase getByIdUseCase,
-    IDeleteUserBookUseCase deleteUseCase, IPutUserBookUseCase putUseCase, IGetBookByUserUseCase getByUserUseCase)
-    : BaseController<IPostUserBookUseCase, IGetAllUserBooksUseCase, IGetUserBookByIdUseCase, IDeleteUserBookUseCase,
-        IPutUserBookUseCase, UserBook, UserBookDto>(postUseCase, getAllUseCase, getByIdUseCase, deleteUseCase, putUseCase)
+public class UserBookController(PostUserBookUseCase postUseCase,
+    DeleteUserBookUseCase deleteUseCase, GetBookByUserUseCase getByUserUseCase)
+    : ControllerBase
 {
     /// <summary>
     /// Retrieves the list of books associated with a specific user.
@@ -40,10 +38,26 @@ public class UserBookController(IPostUserBookUseCase postUseCase,
     [Authorize]
     [ProducesResponseType(typeof(ResponseDto<UserBookDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public override async Task<IActionResult> PostAsync(UserBookDto dto)
+    public async Task<IActionResult> PostAsync(UserBookDto dto)
     {
         var entity = await postUseCase.PostAsync(dto);
         
         return Ok(new ResponseDto<UserBookDto>(CommonStrings.SuccessResultPost, data: entity));
+    }
+    
+    /// <summary>
+    /// Deleting userBooks by its id
+    /// </summary>
+    /// <param name="id">The unique identifier of the userBook to delete</param>
+    /// <returns>An IActionResult containing the success data</returns>
+    [HttpDelete("{id:guid}")]
+    [Authorize]
+    [ProducesResponseType(typeof(ResponseDto<object>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ResponseDto<object>), StatusCodes.Status500InternalServerError)]
+    public virtual async Task<IActionResult> DeleteAsync(Guid id)
+    {
+        await deleteUseCase.DeleteByIdAsync(id);
+        
+        return Ok(new ResponseDto<string>(CommonStrings.SuccessResultDelete));
     }
 }

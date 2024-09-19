@@ -3,7 +3,7 @@
 [TestFixture]
 public class UserServiceTest : BaseTest
 {
-    private IGetUserByIdUseCase _getUserByIdUseCase;
+    private GetUserByIdUseCase _getUserByIdUseCase;
     private Mock<IMapper> _mapperMock;
 
     [SetUp]
