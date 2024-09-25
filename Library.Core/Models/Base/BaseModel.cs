@@ -1,13 +1,12 @@
-﻿using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
-using Library.Core.Models.Interfaces;
+﻿using Library.Core.Models.Interfaces;
 
 namespace Library.Core.Models.Base;
 
 public class BaseModel : IHasId
 {
-    [Key]
-    [Column("id")]
+    /// <summary>
+    /// ID of entity
+    /// </summary>
     public Guid Id { get; set; } = Guid.NewGuid();
 
     /// <summary>
