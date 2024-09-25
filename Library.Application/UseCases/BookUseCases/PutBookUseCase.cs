@@ -6,17 +6,11 @@ public class PutBookUseCase(IDbRepository repository, IMapper mapper)
     {
         var entity = mapper.Map<Book>(dto);
         entity.DateUpdated = DateTime.UtcNow;
-
-        try
-        {
-            await repository.Update(entity);
-            await repository.SaveChangesAsync();
-        }
-        catch (DbUpdateConcurrencyException ex)
-        {
-            if (!IsBookExists(dto.Id))
-                throw new EntityNotFoundException($"{CommonStrings.NotFoundResult}, {ex.Message}");
-        }
+        if (!IsBookExists(dto.Id))
+            throw new EntityNotFoundException(CommonStrings.NotFoundResult);
+        
+        await repository.Update(entity);
+        await repository.SaveChangesAsync();
 
         return dto;
     }
