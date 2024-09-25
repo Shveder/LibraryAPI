@@ -3,14 +3,14 @@
 [AutoInterface]
 public class PhotoService : IPhotoService
 {
-    private readonly string _rootLocation = "uploads";
+    private const string RootLocation = "uploads";
 
     public async Task SavePhotoAsync(Guid bookId, Stream fileStream)
     {
-        string location = $"books/{bookId}";
-        string bookDir = Path.Combine(_rootLocation, location);
+        var location = $"books/{bookId}";
+        var bookDir = Path.Combine(RootLocation, location);
         Directory.CreateDirectory(bookDir);
-        string filePath = Path.Combine(bookDir, $"{bookId}.jpg");
+        var filePath = Path.Combine(bookDir, $"{bookId}.jpg");
 
         if (File.Exists(filePath))
             File.Delete(filePath);
@@ -21,11 +21,11 @@ public class PhotoService : IPhotoService
     
     public async Task<Stream> GetPhotoAsync(Guid bookId)
     {
-        string location = $"books/{bookId}";
-        string filePath = Path.Combine(_rootLocation, location, $"{bookId}.jpg");
+        var location = $"books/{bookId}";
+        var filePath = Path.Combine(RootLocation, location, $"{bookId}.jpg");
 
         if (!File.Exists(filePath))
-            filePath = Path.Combine(_rootLocation, "profileIcon.png");
+            filePath = Path.Combine(RootLocation, "profileIcon.png");
             
         return await Task.FromResult(File.OpenRead(filePath));
     }
