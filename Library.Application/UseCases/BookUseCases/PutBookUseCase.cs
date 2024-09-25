@@ -2,7 +2,7 @@
 
 public class PutBookUseCase(IDbRepository repository, IMapper mapper)
 {
-    public virtual async Task<BookDto> PutAsync(BookDto dto)
+    public async Task<BookDto> PutAsync(BookDto dto)
     {
         var entity = mapper.Map<Book>(dto);
         entity.DateUpdated = DateTime.UtcNow;

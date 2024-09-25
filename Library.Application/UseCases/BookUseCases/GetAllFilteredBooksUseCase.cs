@@ -2,7 +2,7 @@
 
 public class GetAllFilteredBooksUseCase(IDbRepository repository, IMapper mapper)
 {
-    public virtual async Task<(IEnumerable<BookDto> Books, int TotalCount)> GetAllFiltered(FilterDto filter)
+    public async Task<(IEnumerable<BookDto> Books, int TotalCount)> GetAllFiltered(FilterDto filter)
     {
         IQueryable<Book> query = repository.GetAll<Book>().Include(b => b.Author).AsQueryable();
 

@@ -2,7 +2,7 @@
 
 public class GetUserByIdUseCase(IDbRepository repository, IMapper mapper)
 {
-    public virtual async Task<UserDto> GetByIdAsync(Guid id)
+    public async Task<UserDto> GetByIdAsync(Guid id)
     {
         var entity = await repository.Get<User>(e => e.Id == id).FirstOrDefaultAsync();
         if (entity is null)

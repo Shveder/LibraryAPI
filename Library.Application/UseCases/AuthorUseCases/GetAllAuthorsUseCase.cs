@@ -2,7 +2,7 @@
 
 public class GetAllAuthorsUseCase(IDbRepository repository, IMapper mapper)
 {
-    public virtual async Task<IEnumerable<AuthorDto>> GetAllAsync()
+    public async Task<IEnumerable<AuthorDto>> GetAllAsync()
     {
         var entities = await repository.GetAll<Author>().ToListAsync();
         var dtos = mapper.Map<IEnumerable<AuthorDto>>(entities);
