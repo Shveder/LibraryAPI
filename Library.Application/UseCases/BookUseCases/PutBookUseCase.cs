@@ -4,19 +4,16 @@ public class PutBookUseCase(IDbRepository repository, IMapper mapper)
 {
     public async Task<BookDto> PutAsync(BookDto dto)
     {
-        var entity = mapper.Map<Book>(dto);
-        entity.DateUpdated = DateTime.UtcNow;
-        if (!IsBookExists(dto.Id))
+        var existingBook = repository.Get<Book>(e => e.Id == dto.Id).FirstOrDefault();
+        if (existingBook == null)
             throw new EntityNotFoundException(CommonStrings.NotFoundResult);
         
-        await repository.Update(entity);
+        mapper.Map(dto, existingBook);
+        existingBook.DateUpdated = DateTime.UtcNow;
+        
+        await repository.Update(existingBook);
         await repository.SaveChangesAsync();
 
         return dto;
-    }
-
-    private bool IsBookExists(Guid id)
-    {
-        return repository.Get<Book>(e => e.Id == id).Any();
     }
 }

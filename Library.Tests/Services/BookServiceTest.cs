@@ -132,11 +132,11 @@ public class BookUseCasesTests : BaseTest
             ISBN = "123-456-789"
         };
 
-        _mapperMock.Setup(m => m.Map<Book>(It.IsAny<BookDto>())).Returns(new Book
+        _mapperMock.Setup(m => m.Map(It.IsAny<BookDto>(), It.IsAny<Book>())).Callback((BookDto dto, Book entity) =>
         {
-            BookName = "Updated Book",
-            ISBN = "123-456-789",
-            DateUpdated = DateTime.UtcNow
+            entity.BookName = dto.BookName;
+            entity.ISBN = dto.ISBN;
+            entity.DateUpdated = DateTime.UtcNow;
         });
 
         // Act
