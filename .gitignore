@@ -7,3 +7,8 @@ riderModule.iml
 /Library.API/uploads
 /.idea
 Library.Infrastructure/Migrations
+/global.json
+/Library.API/Properties/launchSettings.json
+/Library.API/Library.API.http
+/Library.sln
+/Library.sln.DotSettings.user
